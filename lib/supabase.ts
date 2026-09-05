@@ -8,41 +8,64 @@ export type Transaction = {
   note?: string | null;
 };
 
+export type TransactionInsert = {
+  id?: string;
+  created_at?: string;
+  item_name: string;
+  amount: number;
+  note?: string | null;
+};
+
+export type TransactionUpdate = {
+  item_name?: string;
+  amount?: number;
+  note?: string | null;
+};
+
 export type Database = {
   public: {
     Tables: {
       transactions: {
         Row: Transaction;
-        Insert: {
-          id?: string;
-          created_at?: string;
-          item_name: string;
-          amount: number;
-          note?: string | null;
-        };
-        Update: {
-          id?: string;
-          created_at?: string;
-          item_name?: string;
-          amount?: number;
-          note?: string | null;
-        };
+        Insert: TransactionInsert;
+        Update: TransactionUpdate;
+        Relationships: [];
       };
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      [_ in never]: never;
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
     };
   };
 };
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co";
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key";
+function normalizeUrl(url?: string): string {
+  if (!url) return "https://placeholder.supabase.co";
+  return url.trim().replace(/\/rest\/v1\/?$/, "").replace(/\/+$/, "");
+}
 
-export const isSupabaseConfigured = () => {
-  return (
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-    process.env.NEXT_PUBLIC_SUPABASE_URL !== "https://placeholder.supabase.co" &&
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== "placeholder-anon-key"
+const rawUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const rawKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
+export const isSupabaseConfigured = (): boolean => {
+  return Boolean(
+    rawUrl &&
+    rawKey &&
+    !rawUrl.includes("placeholder.supabase.co") &&
+    rawKey !== "placeholder-anon-key"
   );
 };
+
+const supabaseUrl = normalizeUrl(rawUrl);
+const supabaseAnonKey = rawKey?.trim() || "placeholder-anon-key";
 
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
@@ -50,3 +73,5 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: false,
   },
 });
+
+export * from "./transactions";
