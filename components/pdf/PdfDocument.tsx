@@ -1,7 +1,17 @@
 import React from "react";
 import { Transaction } from "@/lib/supabase";
-import { formatRupiah, formatMonthYear, formatHeaderDate, formatShortDate, formatTime } from "@/lib/format";
-import { aggregateByCategory, CATEGORY_COLORS, CategoryName } from "@/lib/categories";
+import {
+  formatRupiah,
+  formatMonthYear,
+  formatHeaderDate,
+  formatShortDate,
+  formatTime,
+} from "@/lib/format";
+import {
+  aggregateByCategory,
+  CATEGORY_COLORS,
+  CategoryName,
+} from "@/lib/categories";
 
 interface PdfDocumentProps {
   currentDate: Date;
@@ -14,21 +24,47 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
     const monthName = formatMonthYear(currentDate);
     const generatedDate = formatHeaderDate(new Date());
 
-    const totalAmount = transactions.reduce((sum, item) => sum + (item.amount || 0), 0);
+    const totalAmount = transactions.reduce(
+      (sum, item) => sum + (item.amount || 0),
+      0
+    );
     const categories = aggregateByCategory(transactions);
+    const standardCategories: CategoryName[] = [
+      "Makanan",
+      "Minuman",
+      "Transport",
+      "Belanja",
+      "Lainnya",
+    ];
 
-    // Semua kategori baku sesuai blueprint
-    const standardCategories: CategoryName[] = ["Makanan", "Minuman", "Transport", "Belanja", "Lainnya"];
+    // Palet Warna Murni HEX (Black Journal Design System)
+    const C = {
+      bg: "#0D0D0D",
+      surface: "#161616",
+      border: "#262626",
+      textPrimary: "#F5F5F5",
+      textSecondary: "#9CA3AF",
+      accentTeal: "#14B8A6",
+      tealBg: "rgba(20, 184, 166, 0.12)",
+      tealBorder: "rgba(20, 184, 166, 0.35)",
+    };
+
+    const fontSans =
+      'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+    const fontMono =
+      '"Roboto Mono", monospace, SFMono-Regular, Menlo, Monaco, Consolas';
 
     return (
       <div
         ref={ref}
-        className="font-sans text-[#F5F5F5] bg-[#0D0D0D]"
         style={{
-          width: "794px", // Standard A4 width at 96 DPI
+          width: "794px", // A4 width at 96 DPI
           position: "absolute",
           left: "-9999px",
           top: "-9999px",
+          backgroundColor: C.bg,
+          color: C.textPrimary,
+          fontFamily: fontSans,
         }}
       >
         {/* ===================================================
@@ -36,53 +72,171 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
             =================================================== */}
         <div
           id="pdf-page-1"
-          className="relative flex flex-col justify-between bg-[#0D0D0D] border-b border-[#262626]"
           style={{
             width: "794px",
-            height: "1123px", // Standard A4 height at 96 DPI
-            padding: "68px",  // 18mm margin
+            height: "1123px", // A4 height at 96 DPI
+            padding: "68px", // 18mm margin
             boxSizing: "border-box",
+            backgroundColor: C.bg,
+            color: C.textPrimary,
+            fontFamily: fontSans,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
           }}
         >
           {/* Header Cover */}
-          <div className="flex items-center justify-between border-b border-[#262626] pb-8">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-[#161616] border border-[#262626] flex items-center justify-center">
-                <span className="text-lg font-black text-[#14B8A6]">D</span>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              borderBottom: `1px solid ${C.border}`,
+              paddingBottom: "32px",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <div
+                style={{
+                  width: "42px",
+                  height: "42px",
+                  borderRadius: "14px",
+                  backgroundColor: C.surface,
+                  border: `1px solid ${C.border}`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <span
+                  style={{
+                    color: C.accentTeal,
+                    fontWeight: 900,
+                    fontSize: "20px",
+                  }}
+                >
+                  D
+                </span>
               </div>
-              <span className="text-xl font-black tracking-widest text-[#F5F5F5]">DUITKU</span>
+              <span
+                style={{
+                  fontSize: "22px",
+                  fontWeight: 900,
+                  letterSpacing: "3px",
+                  color: C.textPrimary,
+                }}
+              >
+                DUITKU
+              </span>
             </div>
-            <div className="px-3 py-1 rounded-full bg-[#161616] border border-[#262626] text-[11px] font-semibold text-[#9CA3AF] tracking-wider uppercase">
+
+            <div
+              style={{
+                padding: "6px 14px",
+                borderRadius: "999px",
+                backgroundColor: C.surface,
+                border: `1px solid ${C.border}`,
+                fontSize: "11px",
+                fontWeight: 600,
+                color: C.textSecondary,
+                letterSpacing: "1px",
+                textTransform: "uppercase",
+              }}
+            >
               Black Journal Edition
             </div>
           </div>
 
           {/* Body Cover */}
-          <div className="my-auto text-center space-y-6">
-            <div className="inline-block px-4 py-1.5 rounded-full bg-[#14B8A6]/10 border border-[#14B8A6]/30 text-xs font-bold uppercase tracking-widest text-[#14B8A6]">
-              Laporan Keuangan Keluarga
+          <div
+            style={{
+              textAlign: "center",
+              margin: "auto 0",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "24px",
+            }}
+          >
+            <div
+              style={{
+                padding: "6px 16px",
+                borderRadius: "999px",
+                backgroundColor: C.tealBg,
+                border: `1px solid ${C.tealBorder}`,
+                fontSize: "12px",
+                fontWeight: 700,
+                color: C.accentTeal,
+                letterSpacing: "1.5px",
+                textTransform: "uppercase",
+              }}
+            >
+              Laporan Keuangan Realtime
             </div>
 
-            <h1 className="text-5xl font-extrabold tracking-tight text-[#F5F5F5] leading-tight">
+            <h1
+              style={{
+                fontSize: "48px",
+                fontWeight: 800,
+                letterSpacing: "-1px",
+                color: C.textPrimary,
+                margin: 0,
+                lineHeight: 1.2,
+              }}
+            >
               Laporan Pengeluaran
             </h1>
 
-            <div className="text-3xl font-light text-[#14B8A6] tracking-wide">
+            <div
+              style={{
+                fontSize: "30px",
+                fontWeight: 300,
+                color: C.accentTeal,
+                letterSpacing: "0.5px",
+              }}
+            >
               {monthName}
             </div>
 
-            <div className="pt-8">
-              <span className="text-xs uppercase tracking-widest text-[#9CA3AF] block mb-1">
+            <div style={{ marginTop: "32px" }}>
+              <span
+                style={{
+                  display: "block",
+                  fontSize: "12px",
+                  letterSpacing: "2px",
+                  color: C.textSecondary,
+                  textTransform: "uppercase",
+                  marginBottom: "6px",
+                }}
+              >
                 Pemilik Jurnal
               </span>
-              <span className="text-2xl font-bold text-[#F5F5F5]">{ownerName}</span>
+              <span
+                style={{
+                  fontSize: "26px",
+                  fontWeight: 700,
+                  color: C.textPrimary,
+                }}
+              >
+                {ownerName}
+              </span>
             </div>
           </div>
 
           {/* Footer Cover */}
-          <div className="border-t border-[#262626] pt-6 flex items-center justify-between text-xs text-[#9CA3AF]">
+          <div
+            style={{
+              borderTop: `1px solid ${C.border}`,
+              paddingTop: "24px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              fontSize: "12px",
+              color: C.textSecondary,
+            }}
+          >
             <span>Tanggal Cetak: {generatedDate}</span>
-            <span>DUITKU V1 • Realtime Family Journal</span>
+            <span>DUITKU V1 • Family Realtime Journal</span>
           </div>
         </div>
 
@@ -91,90 +245,293 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
             =================================================== */}
         <div
           id="pdf-page-2"
-          className="relative flex flex-col justify-between bg-[#0D0D0D] border-b border-[#262626]"
           style={{
             width: "794px",
             height: "1123px",
             padding: "68px",
             boxSizing: "border-box",
+            backgroundColor: C.bg,
+            color: C.textPrimary,
+            fontFamily: fontSans,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
           }}
         >
           {/* Header Page 2 */}
-          <div className="flex items-center justify-between border-b border-[#262626] pb-5">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              borderBottom: `1px solid ${C.border}`,
+              paddingBottom: "20px",
+            }}
+          >
             <div>
-              <span className="text-[10px] font-bold tracking-widest uppercase text-[#9CA3AF]">
+              <span
+                style={{
+                  display: "block",
+                  fontSize: "11px",
+                  fontWeight: 700,
+                  letterSpacing: "1.5px",
+                  textTransform: "uppercase",
+                  color: C.textSecondary,
+                  marginBottom: "4px",
+                }}
+              >
                 DUITKU • Ringkasan Eksekutif
               </span>
-              <h2 className="text-xl font-extrabold text-[#F5F5F5]">Ringkasan {monthName}</h2>
+              <h2
+                style={{
+                  fontSize: "22px",
+                  fontWeight: 800,
+                  color: C.textPrimary,
+                  margin: 0,
+                }}
+              >
+                Ringkasan {monthName}
+              </h2>
             </div>
-            <span className="text-xs text-[#9CA3AF] font-mono">Ari</span>
+            <span
+              style={{
+                fontSize: "13px",
+                color: C.textSecondary,
+                fontFamily: fontMono,
+              }}
+            >
+              {ownerName}
+            </span>
           </div>
 
           {/* Content Page 2 */}
-          <div className="flex-1 py-8 space-y-8">
+          <div
+            style={{
+              flex: 1,
+              paddingTop: "32px",
+              paddingBottom: "32px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "28px",
+            }}
+          >
             {/* Metric Cards */}
-            <div className="grid grid-cols-2 gap-5">
-              <div className="p-6 rounded-[20px] bg-[#161616] border border-[#262626]">
-                <span className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF]">
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "20px",
+              }}
+            >
+              <div
+                style={{
+                  padding: "24px",
+                  borderRadius: "20px",
+                  backgroundColor: C.surface,
+                  border: `1px solid ${C.border}`,
+                }}
+              >
+                <span
+                  style={{
+                    display: "block",
+                    fontSize: "11px",
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                    letterSpacing: "1px",
+                    color: C.textSecondary,
+                  }}
+                >
                   Total Pengeluaran
                 </span>
-                <div className="mt-2 text-3xl font-black text-[#14B8A6] font-mono">
+                <div
+                  style={{
+                    marginTop: "8px",
+                    fontSize: "30px",
+                    fontWeight: 900,
+                    color: C.accentTeal,
+                    fontFamily: fontMono,
+                  }}
+                >
                   {formatRupiah(totalAmount)}
                 </div>
               </div>
 
-              <div className="p-6 rounded-[20px] bg-[#161616] border border-[#262626]">
-                <span className="text-xs font-semibold uppercase tracking-wider text-[#9CA3AF]">
+              <div
+                style={{
+                  padding: "24px",
+                  borderRadius: "20px",
+                  backgroundColor: C.surface,
+                  border: `1px solid ${C.border}`,
+                }}
+              >
+                <span
+                  style={{
+                    display: "block",
+                    fontSize: "11px",
+                    fontWeight: 600,
+                    textTransform: "uppercase",
+                    letterSpacing: "1px",
+                    color: C.textSecondary,
+                  }}
+                >
                   Jumlah Transaksi
                 </span>
-                <div className="mt-2 text-3xl font-black text-[#F5F5F5] font-mono">
-                  {transactions.length} <span className="text-base font-medium text-[#9CA3AF]">Catatan</span>
+                <div
+                  style={{
+                    marginTop: "8px",
+                    fontSize: "30px",
+                    fontWeight: 900,
+                    color: C.textPrimary,
+                    fontFamily: fontMono,
+                  }}
+                >
+                  {transactions.length}{" "}
+                  <span
+                    style={{
+                      fontSize: "15px",
+                      fontWeight: 500,
+                      color: C.textSecondary,
+                    }}
+                  >
+                    Catatan
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* Visual Distribution Bars */}
-            <div className="p-6 rounded-[20px] bg-[#161616] border border-[#262626]">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#9CA3AF] mb-5">
+            <div
+              style={{
+                padding: "24px",
+                borderRadius: "20px",
+                backgroundColor: C.surface,
+                border: `1px solid ${C.border}`,
+              }}
+            >
+              <h3
+                style={{
+                  fontSize: "12px",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "1px",
+                  color: C.textSecondary,
+                  marginTop: 0,
+                  marginBottom: "20px",
+                }}
+              >
                 Distribusi Kategori Pengeluaran
               </h3>
 
-              <div className="space-y-4">
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "18px",
+                }}
+              >
                 {standardCategories.map((catName) => {
                   const catData = categories.find((c) => c.name === catName);
                   const val = catData?.value || 0;
                   const count = catData?.count || 0;
-                  const percent = totalAmount > 0 ? (val / totalAmount) * 100 : 0;
+                  const percent =
+                    totalAmount > 0 ? (val / totalAmount) * 100 : 0;
                   const color = CATEGORY_COLORS[catName];
 
                   return (
-                    <div key={catName} className="space-y-1.5">
-                      <div className="flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-2">
+                    <div
+                      key={catName}
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "6px",
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          fontSize: "12px",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "8px",
+                          }}
+                        >
                           <span
-                            className="w-2.5 h-2.5 rounded-full"
-                            style={{ backgroundColor: color }}
+                            style={{
+                              width: "10px",
+                              height: "10px",
+                              borderRadius: "50%",
+                              backgroundColor: color,
+                              display: "inline-block",
+                            }}
                           />
-                          <span className="font-semibold text-[#F5F5F5]">{catName}</span>
-                          <span className="text-[11px] text-[#9CA3AF] font-mono">
+                          <span
+                            style={{
+                              fontWeight: 600,
+                              color: C.textPrimary,
+                            }}
+                          >
+                            {catName}
+                          </span>
+                          <span
+                            style={{
+                              fontSize: "11px",
+                              color: C.textSecondary,
+                              fontFamily: fontMono,
+                            }}
+                          >
                             ({count}x)
                           </span>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <span className="text-[11px] text-[#9CA3AF] font-mono">
+
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "12px",
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: "11px",
+                              color: C.textSecondary,
+                              fontFamily: fontMono,
+                            }}
+                          >
                             {percent.toFixed(1)}%
                           </span>
-                          <span className="font-bold text-[#F5F5F5] font-mono">
+                          <span
+                            style={{
+                              fontWeight: 700,
+                              color: C.textPrimary,
+                              fontFamily: fontMono,
+                            }}
+                          >
                             {formatRupiah(val)}
                           </span>
                         </div>
                       </div>
 
-                      {/* Progress Bar */}
-                      <div className="w-full h-2 rounded-full bg-[#0D0D0D] border border-[#262626] overflow-hidden">
+                      {/* Progress Bar Track */}
+                      <div
+                        style={{
+                          width: "100%",
+                          height: "8px",
+                          borderRadius: "999px",
+                          backgroundColor: C.bg,
+                          border: `1px solid ${C.border}`,
+                          overflow: "hidden",
+                        }}
+                      >
                         <div
-                          className="h-full rounded-full transition-all duration-300"
                           style={{
+                            height: "100%",
+                            borderRadius: "999px",
                             width: `${Math.max(percent, 0)}%`,
                             backgroundColor: color,
                           }}
@@ -188,7 +545,17 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
           </div>
 
           {/* Footer Page 2 */}
-          <div className="border-t border-[#262626] pt-4 flex items-center justify-between text-xs text-[#9CA3AF]">
+          <div
+            style={{
+              borderTop: `1px solid ${C.border}`,
+              paddingTop: "16px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              fontSize: "12px",
+              color: C.textSecondary,
+            }}
+          >
             <span>Generated by DUITKU</span>
             <span>Halaman 2 dari 3</span>
           </div>
@@ -199,56 +566,163 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
             =================================================== */}
         <div
           id="pdf-page-3"
-          className="relative flex flex-col justify-between bg-[#0D0D0D]"
           style={{
             width: "794px",
             height: "1123px",
             padding: "68px",
             boxSizing: "border-box",
+            backgroundColor: C.bg,
+            color: C.textPrimary,
+            fontFamily: fontSans,
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "space-between",
           }}
         >
           {/* Header Page 3 */}
-          <div className="flex items-center justify-between border-b border-[#262626] pb-5">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              borderBottom: `1px solid ${C.border}`,
+              paddingBottom: "20px",
+            }}
+          >
             <div>
-              <span className="text-[10px] font-bold tracking-widest uppercase text-[#9CA3AF]">
+              <span
+                style={{
+                  display: "block",
+                  fontSize: "11px",
+                  fontWeight: 700,
+                  letterSpacing: "1.5px",
+                  textTransform: "uppercase",
+                  color: C.textSecondary,
+                  marginBottom: "4px",
+                }}
+              >
                 DUITKU • Daftar Lengkap
               </span>
-              <h2 className="text-xl font-extrabold text-[#F5F5F5]">Tabel Transaksi — {monthName}</h2>
+              <h2
+                style={{
+                  fontSize: "22px",
+                  fontWeight: 800,
+                  color: C.textPrimary,
+                  margin: 0,
+                }}
+              >
+                Tabel Transaksi — {monthName}
+              </h2>
             </div>
-            <span className="text-xs text-[#9CA3AF] font-mono">
+            <span
+              style={{
+                fontSize: "13px",
+                color: C.textSecondary,
+                fontFamily: fontMono,
+              }}
+            >
               Total: {transactions.length} Item
             </span>
           </div>
 
           {/* Table Page 3 */}
-          <div className="flex-1 py-6 overflow-hidden">
-            <table className="w-full text-left border-collapse text-xs">
+          <div style={{ flex: 1, paddingTop: "24px", overflow: "hidden" }}>
+            <table
+              style={{
+                width: "100%",
+                textAlign: "left",
+                borderCollapse: "collapse",
+                fontSize: "12px",
+              }}
+            >
               <thead>
-                <tr className="border-b border-[#262626] text-[#9CA3AF] uppercase tracking-wider text-[10px]">
-                  <th className="py-2.5 px-3 font-bold w-24">Tanggal</th>
-                  <th className="py-2.5 px-3 font-bold w-16">Jam</th>
-                  <th className="py-2.5 px-3 font-bold">Barang</th>
-                  <th className="py-2.5 px-3 font-bold text-right w-28">Nominal</th>
+                <tr
+                  style={{
+                    borderBottom: `1px solid ${C.border}`,
+                    color: C.textSecondary,
+                    textTransform: "uppercase",
+                    fontSize: "10px",
+                    letterSpacing: "1px",
+                  }}
+                >
+                  <th style={{ padding: "10px 12px", fontWeight: 700, width: "100px" }}>
+                    Tanggal
+                  </th>
+                  <th style={{ padding: "10px 12px", fontWeight: 700, width: "70px" }}>
+                    Jam
+                  </th>
+                  <th style={{ padding: "10px 12px", fontWeight: 700 }}>
+                    Barang
+                  </th>
+                  <th
+                    style={{
+                      padding: "10px 12px",
+                      fontWeight: 700,
+                      textAlign: "right",
+                      width: "120px",
+                    }}
+                  >
+                    Nominal
+                  </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#262626]/60 font-sans">
+              <tbody>
                 {transactions.slice(0, 22).map((tx) => (
-                  <tr key={tx.id} className="text-[#F5F5F5]">
-                    <td className="py-2 px-3 whitespace-nowrap text-[#9CA3AF] font-mono">
+                  <tr
+                    key={tx.id}
+                    style={{
+                      borderBottom: `1px solid ${C.border}`,
+                      color: C.textPrimary,
+                    }}
+                  >
+                    <td
+                      style={{
+                        padding: "10px 12px",
+                        whiteSpace: "nowrap",
+                        color: C.textSecondary,
+                        fontFamily: fontMono,
+                      }}
+                    >
                       {formatShortDate(tx.created_at)}
                     </td>
-                    <td className="py-2 px-3 whitespace-nowrap text-[#9CA3AF] font-mono">
+                    <td
+                      style={{
+                        padding: "10px 12px",
+                        whiteSpace: "nowrap",
+                        color: C.textSecondary,
+                        fontFamily: fontMono,
+                      }}
+                    >
                       {formatTime(tx.created_at)}
                     </td>
-                    <td className="py-2 px-3">
-                      <span className="font-semibold">{tx.item_name}</span>
+                    <td style={{ padding: "10px 12px" }}>
+                      <span style={{ fontWeight: 600, color: C.textPrimary }}>
+                        {tx.item_name}
+                      </span>
                       {tx.note && (
-                        <span className="text-[10px] text-[#9CA3AF] block italic">
+                        <span
+                          style={{
+                            display: "block",
+                            fontSize: "10px",
+                            color: C.textSecondary,
+                            fontStyle: "italic",
+                            marginTop: "2px",
+                          }}
+                        >
                           {tx.note}
                         </span>
                       )}
                     </td>
-                    <td className="py-2 px-3 text-right whitespace-nowrap font-bold text-[#14B8A6] font-mono">
+                    <td
+                      style={{
+                        padding: "10px 12px",
+                        textAlign: "right",
+                        whiteSpace: "nowrap",
+                        fontWeight: 700,
+                        color: C.accentTeal,
+                        fontFamily: fontMono,
+                      }}
+                    >
                       {formatRupiah(tx.amount)}
                     </td>
                   </tr>
@@ -257,15 +731,35 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
             </table>
 
             {transactions.length > 22 && (
-              <p className="text-[10px] text-[#9CA3AF] italic text-center mt-3">
-                * Menampilkan 22 transaksi pertama pada halaman laporan ringkas ini.
+              <p
+                style={{
+                  fontSize: "11px",
+                  color: C.textSecondary,
+                  fontStyle: "italic",
+                  textAlign: "center",
+                  marginTop: "16px",
+                }}
+              >
+                * Menampilkan 22 transaksi pertama pada dokumen ringkas ini.
               </p>
             )}
           </div>
 
           {/* Footer Page 3 (Sesuai Blueprint: "Generated by DUITKU") */}
-          <div className="border-t border-[#262626] pt-4 flex items-center justify-between text-xs text-[#9CA3AF]">
-            <span className="font-semibold text-[#F5F5F5]">Generated by DUITKU</span>
+          <div
+            style={{
+              borderTop: `1px solid ${C.border}`,
+              paddingTop: "16px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              fontSize: "12px",
+              color: C.textSecondary,
+            }}
+          >
+            <span style={{ fontWeight: 600, color: C.textPrimary }}>
+              Generated by DUITKU
+            </span>
             <span>Halaman 3 dari 3</span>
           </div>
         </div>
