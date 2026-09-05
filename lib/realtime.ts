@@ -1,7 +1,5 @@
-import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
+import { RealtimePostgresChangesPayload, REALTIME_SUBSCRIBE_STATES } from "@supabase/supabase-js";
 import { supabase, Transaction } from "./supabase";
-
-export const TRANSACTIONS_CHANNEL = "transactions-realtime";
 
 export type RealtimeTransactionHandler = (
   payload: RealtimePostgresChangesPayload<Transaction>
@@ -9,10 +7,17 @@ export type RealtimeTransactionHandler = (
 
 /**
  * Helper untuk subscribe ke perubahan realtime tabel transactions
+ * Menggunakan channel name unik agar isolasi subscription antar tab/halaman tetap terjamin
  */
-export function subscribeToTransactions(onPayload: RealtimeTransactionHandler) {
+export function subscribeToTransactions(
+  onPayload: RealtimeTransactionHandler,
+  onStatusChange?: (status: `${REALTIME_SUBSCRIBE_STATES}`) => void,
+  channelPrefix = "transactions"
+) {
+  const uniqueChannel = `${channelPrefix}-${Math.random().toString(36).slice(2, 8)}`;
+  
   const channel = supabase
-    .channel(TRANSACTIONS_CHANNEL)
+    .channel(uniqueChannel)
     .on(
       "postgres_changes",
       {
@@ -24,7 +29,11 @@ export function subscribeToTransactions(onPayload: RealtimeTransactionHandler) {
         onPayload(payload as RealtimePostgresChangesPayload<Transaction>);
       }
     )
-    .subscribe();
+    .subscribe((status) => {
+      if (onStatusChange) {
+        onStatusChange(status);
+      }
+    });
 
   return () => {
     supabase.removeChannel(channel);
