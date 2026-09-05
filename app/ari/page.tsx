@@ -10,6 +10,10 @@ import { ViewerHeader } from "@/components/viewer/ViewerHeader";
 import { BigTotalDisplay } from "@/components/viewer/BigTotalDisplay";
 import { RealtimeTimeline } from "@/components/viewer/RealtimeTimeline";
 import { MonthlyRecapView } from "@/components/viewer/MonthlyRecapView";
+import { PdfDocument } from "@/components/pdf/PdfDocument";
+import { ExportPdfModal } from "@/components/pdf/ExportPdfModal";
+import { generate3PagePdf } from "@/lib/pdf";
+import { formatMonthYear } from "@/lib/format";
 
 export default function ViewerPage() {
   // Transaksi Hari Ini (Realtime)
@@ -166,9 +170,40 @@ export default function ViewerPage() {
     return todayTransactions.reduce((sum, item) => sum + (item.amount || 0), 0);
   }, [todayTransactions]);
 
-  // Handler placeholder ekspor PDF (disiapkan untuk Fase 6)
-  const handleDownloadPdf = () => {
-    alert("Fitur Ekspor PDF A4 akan diaktifkan secara penuh pada PHASE 6!");
+  // State untuk proses pembuatan PDF
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const [pdfStatusText, setPdfStatusText] = useState("");
+  const [isPdfComplete, setIsPdfComplete] = useState(false);
+
+  // Handler ekspor PDF 3 halaman A4
+  const handleDownloadPdf = async () => {
+    if (monthlyTransactions.length === 0) {
+      alert("Belum ada data transaksi di bulan ini untuk diekspor ke PDF.");
+      return;
+    }
+
+    setIsExportingPdf(true);
+    setIsPdfComplete(false);
+    setPdfStatusText("Menyiapkan dokumen A4...");
+
+    const monthStr = formatMonthYear(selectedMonthDate).replace(/\s+/g, "_");
+    const fileName = `DUITKU_Laporan_Pengeluaran_${monthStr}_Ari.pdf`;
+
+    try {
+      await generate3PagePdf({
+        fileName,
+        onProgress: (status) => setPdfStatusText(status),
+      });
+
+      setIsPdfComplete(true);
+      setPdfStatusText("Dokumen PDF berhasil disimpan ke perangkat!");
+      setTimeout(() => {
+        setIsExportingPdf(false);
+      }, 1600);
+    } catch (err: any) {
+      alert("Gagal membuat PDF: " + (err.message || "Terjadi kesalahan"));
+      setIsExportingPdf(false);
+    }
   };
 
   return (
@@ -195,6 +230,20 @@ export default function ViewerPage() {
         onNextMonth={handleNextMonth}
         canNextMonth={canNextMonth}
         onDownloadPdf={handleDownloadPdf}
+      />
+
+      {/* Template Hidden Document untuk Render jsPDF & html2canvas (3 Halaman A4) */}
+      <PdfDocument
+        currentDate={selectedMonthDate}
+        transactions={monthlyTransactions}
+        ownerName="Ari"
+      />
+
+      {/* Modal Status Proses Download PDF */}
+      <ExportPdfModal
+        isOpen={isExportingPdf}
+        statusText={pdfStatusText}
+        isComplete={isPdfComplete}
       />
 
       {/* Footer Shortcut ke Halaman Editor */}
