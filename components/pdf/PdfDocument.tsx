@@ -7,11 +7,6 @@ import {
   formatShortDate,
   formatTime,
 } from "@/lib/format";
-import {
-  aggregateByCategory,
-  CATEGORY_COLORS,
-  CategoryName,
-} from "@/lib/categories";
 
 interface PdfDocumentProps {
   currentDate: Date;
@@ -22,747 +17,763 @@ interface PdfDocumentProps {
 export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
   ({ currentDate, transactions, ownerName = "Ari" }, ref) => {
     const monthName = formatMonthYear(currentDate);
-    const generatedDate = formatHeaderDate(new Date());
+    const printedDate = formatHeaderDate(new Date());
 
     const totalAmount = transactions.reduce(
       (sum, item) => sum + (item.amount || 0),
       0
     );
-    const categories = aggregateByCategory(transactions);
-    const standardCategories: CategoryName[] = [
-      "Makanan",
-      "Minuman",
-      "Transport",
-      "Belanja",
-      "Lainnya",
-    ];
 
-    // Palet Warna Murni HEX (Black Journal Design System)
-    const C = {
-      bg: "#0D0D0D",
-      surface: "#161616",
-      border: "#262626",
-      textPrimary: "#F5F5F5",
-      textSecondary: "#9CA3AF",
-      accentTeal: "#14B8A6",
-      tealBg: "rgba(20, 184, 166, 0.12)",
-      tealBorder: "rgba(20, 184, 166, 0.35)",
-    };
+    // Konfigurasi pembagian halaman (1 atau 2 halaman)
+    const ROWS_PAGE_1 = 18;
+    const ROWS_PAGE_2 = 26;
 
-    const fontSans =
-      'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-    const fontMono =
-      '"Roboto Mono", monospace, SFMono-Regular, Menlo, Monaco, Consolas';
+    const needsPage2 = transactions.length > ROWS_PAGE_1;
+    const totalPages = needsPage2 ? 2 : 1;
+
+    const page1Transactions = transactions.slice(0, ROWS_PAGE_1);
+    const page2Transactions = needsPage2
+      ? transactions.slice(ROWS_PAGE_1, ROWS_PAGE_1 + ROWS_PAGE_2)
+      : [];
+
+    // Gaya Standar Dokumen Formal
+    const fontPrimary = "'Times New Roman', Times, 'Liberation Serif', serif";
+    const fontClean = "Arial, Helvetica, sans-serif";
+    const fontMono = "'Courier New', Courier, monospace";
 
     return (
       <div
         ref={ref}
         style={{
-          width: "794px", // A4 width at 96 DPI
+          width: "794px",
           position: "absolute",
           left: "-9999px",
           top: "-9999px",
-          backgroundColor: C.bg,
-          color: C.textPrimary,
-          fontFamily: fontSans,
+          backgroundColor: "#FFFFFF",
+          color: "#000000",
         }}
       >
         {/* ===================================================
-            PAGE 1 — COVER
+            HALAMAN 1 — HEADER, RINGKASAN & TABEL UTAMA
             =================================================== */}
         <div
           id="pdf-page-1"
+          className="pdf-report-page"
           style={{
             width: "794px",
-            height: "1123px", // A4 height at 96 DPI
-            padding: "68px", // 18mm margin
+            height: "1123px",
+            padding: "54px 60px",
             boxSizing: "border-box",
-            backgroundColor: C.bg,
-            color: C.textPrimary,
-            fontFamily: fontSans,
+            backgroundColor: "#FFFFFF",
+            color: "#000000",
+            fontFamily: fontClean,
             display: "flex",
             flexDirection: "column",
             justifyContent: "space-between",
           }}
         >
-          {/* Header Cover */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              borderBottom: `1px solid ${C.border}`,
-              paddingBottom: "32px",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div>
+            {/* Kop / Header Dokumen Formal */}
+            <div
+              style={{
+                textAlign: "center",
+                borderBottom: "2px solid #000000",
+                paddingBottom: "12px",
+                marginBottom: "20px",
+              }}
+            >
               <div
                 style={{
-                  width: "42px",
-                  height: "42px",
-                  borderRadius: "14px",
-                  backgroundColor: C.surface,
-                  border: `1px solid ${C.border}`,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  letterSpacing: "2px",
+                  textTransform: "uppercase",
+                  color: "#4B5563",
+                  marginBottom: "4px",
                 }}
               >
-                <span
-                  style={{
-                    color: C.accentTeal,
-                    fontWeight: 900,
-                    fontSize: "20px",
-                  }}
-                >
-                  D
-                </span>
+                DUITKU — SISTEM PENCATATAN KEUANGAN
               </div>
-              <span
+              <h1
                 style={{
                   fontSize: "22px",
                   fontWeight: 900,
-                  letterSpacing: "3px",
-                  color: C.textPrimary,
-                }}
-              >
-                DUITKU
-              </span>
-            </div>
-
-            <div
-              style={{
-                padding: "6px 14px",
-                borderRadius: "999px",
-                backgroundColor: C.surface,
-                border: `1px solid ${C.border}`,
-                fontSize: "11px",
-                fontWeight: 600,
-                color: C.textSecondary,
-                letterSpacing: "1px",
-                textTransform: "uppercase",
-              }}
-            >
-              Black Journal Edition
-            </div>
-          </div>
-
-          {/* Body Cover */}
-          <div
-            style={{
-              textAlign: "center",
-              margin: "auto 0",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "24px",
-            }}
-          >
-            <div
-              style={{
-                padding: "6px 16px",
-                borderRadius: "999px",
-                backgroundColor: C.tealBg,
-                border: `1px solid ${C.tealBorder}`,
-                fontSize: "12px",
-                fontWeight: 700,
-                color: C.accentTeal,
-                letterSpacing: "1.5px",
-                textTransform: "uppercase",
-              }}
-            >
-              Laporan Keuangan Realtime
-            </div>
-
-            <h1
-              style={{
-                fontSize: "48px",
-                fontWeight: 800,
-                letterSpacing: "-1px",
-                color: C.textPrimary,
-                margin: 0,
-                lineHeight: 1.2,
-              }}
-            >
-              Laporan Pengeluaran
-            </h1>
-
-            <div
-              style={{
-                fontSize: "30px",
-                fontWeight: 300,
-                color: C.accentTeal,
-                letterSpacing: "0.5px",
-              }}
-            >
-              {monthName}
-            </div>
-
-            <div style={{ marginTop: "32px" }}>
-              <span
-                style={{
-                  display: "block",
-                  fontSize: "12px",
-                  letterSpacing: "2px",
-                  color: C.textSecondary,
-                  textTransform: "uppercase",
-                  marginBottom: "6px",
-                }}
-              >
-                Pemilik Jurnal
-              </span>
-              <span
-                style={{
-                  fontSize: "26px",
-                  fontWeight: 700,
-                  color: C.textPrimary,
-                }}
-              >
-                {ownerName}
-              </span>
-            </div>
-          </div>
-
-          {/* Footer Cover */}
-          <div
-            style={{
-              borderTop: `1px solid ${C.border}`,
-              paddingTop: "24px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              fontSize: "12px",
-              color: C.textSecondary,
-            }}
-          >
-            <span>Tanggal Cetak: {generatedDate}</span>
-            <span>DUITKU V1 • Family Realtime Journal</span>
-          </div>
-        </div>
-
-        {/* ===================================================
-            PAGE 2 — SUMMARY & CATEGORY CHART
-            =================================================== */}
-        <div
-          id="pdf-page-2"
-          style={{
-            width: "794px",
-            height: "1123px",
-            padding: "68px",
-            boxSizing: "border-box",
-            backgroundColor: C.bg,
-            color: C.textPrimary,
-            fontFamily: fontSans,
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-          }}
-        >
-          {/* Header Page 2 */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              borderBottom: `1px solid ${C.border}`,
-              paddingBottom: "20px",
-            }}
-          >
-            <div>
-              <span
-                style={{
-                  display: "block",
-                  fontSize: "11px",
-                  fontWeight: 700,
                   letterSpacing: "1.5px",
+                  margin: "0 0 6px 0",
                   textTransform: "uppercase",
-                  color: C.textSecondary,
-                  marginBottom: "4px",
+                  color: "#000000",
+                  fontFamily: fontPrimary,
                 }}
               >
-                DUITKU • Ringkasan Eksekutif
-              </span>
-              <h2
-                style={{
-                  fontSize: "22px",
-                  fontWeight: 800,
-                  color: C.textPrimary,
-                  margin: 0,
-                }}
-              >
-                Ringkasan {monthName}
-              </h2>
-            </div>
-            <span
-              style={{
-                fontSize: "13px",
-                color: C.textSecondary,
-                fontFamily: fontMono,
-              }}
-            >
-              {ownerName}
-            </span>
-          </div>
-
-          {/* Content Page 2 */}
-          <div
-            style={{
-              flex: 1,
-              paddingTop: "32px",
-              paddingBottom: "32px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "28px",
-            }}
-          >
-            {/* Metric Cards */}
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                gap: "20px",
-              }}
-            >
+                LAPORAN PENGELUARAN
+              </h1>
               <div
                 style={{
-                  padding: "24px",
-                  borderRadius: "20px",
-                  backgroundColor: C.surface,
-                  border: `1px solid ${C.border}`,
+                  fontSize: "12px",
+                  color: "#374151",
+                  display: "flex",
+                  justifyContent: "center",
+                  gap: "24px",
                 }}
               >
-                <span
-                  style={{
-                    display: "block",
-                    fontSize: "11px",
-                    fontWeight: 600,
-                    textTransform: "uppercase",
-                    letterSpacing: "1px",
-                    color: C.textSecondary,
-                  }}
-                >
-                  Total Pengeluaran
+                <span>
+                  <strong>Periode:</strong> {monthName}
                 </span>
-                <div
-                  style={{
-                    marginTop: "8px",
-                    fontSize: "30px",
-                    fontWeight: 900,
-                    color: C.accentTeal,
-                    fontFamily: fontMono,
-                  }}
-                >
-                  {formatRupiah(totalAmount)}
-                </div>
+                <span>•</span>
+                <span>
+                  <strong>Nama Jurnal:</strong> {ownerName}
+                </span>
+                <span>•</span>
+                <span>
+                  <strong>Tanggal Cetak:</strong> {printedDate}
+                </span>
+              </div>
+            </div>
+
+            {/* Bagian 1: Ringkasan Bulan */}
+            <div style={{ marginBottom: "22px" }}>
+              <div
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.5px",
+                  color: "#111827",
+                  marginBottom: "6px",
+                  borderLeft: "3px solid #000000",
+                  paddingLeft: "8px",
+                }}
+              >
+                I. Ringkasan {monthName}
               </div>
 
               <div
                 style={{
-                  padding: "24px",
-                  borderRadius: "20px",
-                  backgroundColor: C.surface,
-                  border: `1px solid ${C.border}`,
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "12px",
+                  marginTop: "6px",
                 }}
               >
-                <span
-                  style={{
-                    display: "block",
-                    fontSize: "11px",
-                    fontWeight: 600,
-                    textTransform: "uppercase",
-                    letterSpacing: "1px",
-                    color: C.textSecondary,
-                  }}
-                >
-                  Jumlah Transaksi
-                </span>
                 <div
                   style={{
-                    marginTop: "8px",
-                    fontSize: "30px",
-                    fontWeight: 900,
-                    color: C.textPrimary,
-                    fontFamily: fontMono,
+                    border: "1px solid #D1D5DB",
+                    borderRadius: "4px",
+                    padding: "12px 16px",
+                    backgroundColor: "#F9FAFB",
                   }}
                 >
-                  {transactions.length}{" "}
                   <span
                     style={{
-                      fontSize: "15px",
-                      fontWeight: 500,
-                      color: C.textSecondary,
+                      display: "block",
+                      fontSize: "10px",
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      color: "#6B7280",
                     }}
                   >
-                    Catatan
+                    Total Pengeluaran
                   </span>
+                  <div
+                    style={{
+                      fontSize: "20px",
+                      fontWeight: 800,
+                      color: "#000000",
+                      marginTop: "4px",
+                      fontFamily: fontClean,
+                    }}
+                  >
+                    {formatRupiah(totalAmount)}
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    border: "1px solid #D1D5DB",
+                    borderRadius: "4px",
+                    padding: "12px 16px",
+                    backgroundColor: "#F9FAFB",
+                  }}
+                >
+                  <span
+                    style={{
+                      display: "block",
+                      fontSize: "10px",
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      color: "#6B7280",
+                    }}
+                  >
+                    Jumlah Transaksi
+                  </span>
+                  <div
+                    style={{
+                      fontSize: "20px",
+                      fontWeight: 800,
+                      color: "#000000",
+                      marginTop: "4px",
+                      fontFamily: fontClean,
+                    }}
+                  >
+                    {transactions.length} Transaksi
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Visual Distribution Bars */}
-            <div
-              style={{
-                padding: "24px",
-                borderRadius: "20px",
-                backgroundColor: C.surface,
-                border: `1px solid ${C.border}`,
-              }}
-            >
-              <h3
-                style={{
-                  fontSize: "12px",
-                  fontWeight: 700,
-                  textTransform: "uppercase",
-                  letterSpacing: "1px",
-                  color: C.textSecondary,
-                  marginTop: 0,
-                  marginBottom: "20px",
-                }}
-              >
-                Distribusi Kategori Pengeluaran
-              </h3>
-
+            {/* Bagian 2: Tabel Transaksi */}
+            <div>
               <div
                 style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "18px",
-                }}
-              >
-                {standardCategories.map((catName) => {
-                  const catData = categories.find((c) => c.name === catName);
-                  const val = catData?.value || 0;
-                  const count = catData?.count || 0;
-                  const percent =
-                    totalAmount > 0 ? (val / totalAmount) * 100 : 0;
-                  const color = CATEGORY_COLORS[catName];
-
-                  return (
-                    <div
-                      key={catName}
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "6px",
-                      }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "space-between",
-                          fontSize: "12px",
-                        }}
-                      >
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "8px",
-                          }}
-                        >
-                          <span
-                            style={{
-                              width: "10px",
-                              height: "10px",
-                              borderRadius: "50%",
-                              backgroundColor: color,
-                              display: "inline-block",
-                            }}
-                          />
-                          <span
-                            style={{
-                              fontWeight: 600,
-                              color: C.textPrimary,
-                            }}
-                          >
-                            {catName}
-                          </span>
-                          <span
-                            style={{
-                              fontSize: "11px",
-                              color: C.textSecondary,
-                              fontFamily: fontMono,
-                            }}
-                          >
-                            ({count}x)
-                          </span>
-                        </div>
-
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "12px",
-                          }}
-                        >
-                          <span
-                            style={{
-                              fontSize: "11px",
-                              color: C.textSecondary,
-                              fontFamily: fontMono,
-                            }}
-                          >
-                            {percent.toFixed(1)}%
-                          </span>
-                          <span
-                            style={{
-                              fontWeight: 700,
-                              color: C.textPrimary,
-                              fontFamily: fontMono,
-                            }}
-                          >
-                            {formatRupiah(val)}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Progress Bar Track */}
-                      <div
-                        style={{
-                          width: "100%",
-                          height: "8px",
-                          borderRadius: "999px",
-                          backgroundColor: C.bg,
-                          border: `1px solid ${C.border}`,
-                          overflow: "hidden",
-                        }}
-                      >
-                        <div
-                          style={{
-                            height: "100%",
-                            borderRadius: "999px",
-                            width: `${Math.max(percent, 0)}%`,
-                            backgroundColor: color,
-                          }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* Footer Page 2 */}
-          <div
-            style={{
-              borderTop: `1px solid ${C.border}`,
-              paddingTop: "16px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              fontSize: "12px",
-              color: C.textSecondary,
-            }}
-          >
-            <span>Generated by DUITKU</span>
-            <span>Halaman 2 dari 3</span>
-          </div>
-        </div>
-
-        {/* ===================================================
-            PAGE 3 — FULL TABLE
-            =================================================== */}
-        <div
-          id="pdf-page-3"
-          style={{
-            width: "794px",
-            height: "1123px",
-            padding: "68px",
-            boxSizing: "border-box",
-            backgroundColor: C.bg,
-            color: C.textPrimary,
-            fontFamily: fontSans,
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "space-between",
-          }}
-        >
-          {/* Header Page 3 */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              borderBottom: `1px solid ${C.border}`,
-              paddingBottom: "20px",
-            }}
-          >
-            <div>
-              <span
-                style={{
-                  display: "block",
                   fontSize: "11px",
                   fontWeight: 700,
-                  letterSpacing: "1.5px",
                   textTransform: "uppercase",
-                  color: C.textSecondary,
-                  marginBottom: "4px",
+                  letterSpacing: "0.5px",
+                  color: "#111827",
+                  marginBottom: "8px",
+                  borderLeft: "3px solid #000000",
+                  paddingLeft: "8px",
                 }}
               >
-                DUITKU • Daftar Lengkap
-              </span>
-              <h2
-                style={{
-                  fontSize: "22px",
-                  fontWeight: 800,
-                  color: C.textPrimary,
-                  margin: 0,
-                }}
-              >
-                Tabel Transaksi — {monthName}
-              </h2>
-            </div>
-            <span
-              style={{
-                fontSize: "13px",
-                color: C.textSecondary,
-                fontFamily: fontMono,
-              }}
-            >
-              Total: {transactions.length} Item
-            </span>
-          </div>
+                II. Rincian Transaksi
+              </div>
 
-          {/* Table Page 3 */}
-          <div style={{ flex: 1, paddingTop: "24px", overflow: "hidden" }}>
-            <table
-              style={{
-                width: "100%",
-                textAlign: "left",
-                borderCollapse: "collapse",
-                fontSize: "12px",
-              }}
-            >
-              <thead>
-                <tr
-                  style={{
-                    borderBottom: `1px solid ${C.border}`,
-                    color: C.textSecondary,
-                    textTransform: "uppercase",
-                    fontSize: "10px",
-                    letterSpacing: "1px",
-                  }}
-                >
-                  <th style={{ padding: "10px 12px", fontWeight: 700, width: "100px" }}>
-                    Tanggal
-                  </th>
-                  <th style={{ padding: "10px 12px", fontWeight: 700, width: "70px" }}>
-                    Jam
-                  </th>
-                  <th style={{ padding: "10px 12px", fontWeight: 700 }}>
-                    Barang
-                  </th>
-                  <th
-                    style={{
-                      padding: "10px 12px",
-                      fontWeight: 700,
-                      textAlign: "right",
-                      width: "120px",
-                    }}
-                  >
-                    Nominal
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {transactions.slice(0, 22).map((tx) => (
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  fontSize: "11px",
+                  border: "1px solid #9CA3AF",
+                }}
+              >
+                <thead>
                   <tr
-                    key={tx.id}
                     style={{
-                      borderBottom: `1px solid ${C.border}`,
-                      color: C.textPrimary,
+                      backgroundColor: "#E5E7EB",
+                      borderBottom: "1.5px solid #000000",
+                      color: "#000000",
                     }}
                   >
-                    <td
+                    <th
                       style={{
-                        padding: "10px 12px",
-                        whiteSpace: "nowrap",
-                        color: C.textSecondary,
-                        fontFamily: fontMono,
+                        padding: "8px 6px",
+                        textAlign: "center",
+                        width: "35px",
+                        borderRight: "1px solid #D1D5DB",
+                        fontWeight: 700,
                       }}
                     >
-                      {formatShortDate(tx.created_at)}
-                    </td>
-                    <td
+                      No
+                    </th>
+                    <th
                       style={{
-                        padding: "10px 12px",
-                        whiteSpace: "nowrap",
-                        color: C.textSecondary,
-                        fontFamily: fontMono,
+                        padding: "8px 8px",
+                        textAlign: "center",
+                        width: "85px",
+                        borderRight: "1px solid #D1D5DB",
+                        fontWeight: 700,
                       }}
                     >
-                      {formatTime(tx.created_at)}
-                    </td>
-                    <td style={{ padding: "10px 12px" }}>
-                      <span style={{ fontWeight: 600, color: C.textPrimary }}>
-                        {tx.item_name}
-                      </span>
-                      {tx.note && (
-                        <span
+                      Tanggal
+                    </th>
+                    <th
+                      style={{
+                        padding: "8px 8px",
+                        textAlign: "center",
+                        width: "55px",
+                        borderRight: "1px solid #D1D5DB",
+                        fontWeight: 700,
+                      }}
+                    >
+                      Jam
+                    </th>
+                    <th
+                      style={{
+                        padding: "8px 10px",
+                        textAlign: "left",
+                        borderRight: "1px solid #D1D5DB",
+                        fontWeight: 700,
+                      }}
+                    >
+                      Barang / Keterangan
+                    </th>
+                    <th
+                      style={{
+                        padding: "8px 10px",
+                        textAlign: "right",
+                        width: "110px",
+                        fontWeight: 700,
+                      }}
+                    >
+                      Nominal
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {page1Transactions.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={5}
+                        style={{
+                          textAlign: "center",
+                          padding: "24px",
+                          color: "#6B7280",
+                          fontStyle: "italic",
+                        }}
+                      >
+                        Tidak ada catatan transaksi pada periode ini.
+                      </td>
+                    </tr>
+                  ) : (
+                    page1Transactions.map((tx, idx) => (
+                      <tr
+                        key={tx.id}
+                        style={{
+                          borderBottom: "1px solid #E5E7EB",
+                          backgroundColor:
+                            idx % 2 === 1 ? "#F9FAFB" : "#FFFFFF",
+                        }}
+                      >
+                        <td
                           style={{
-                            display: "block",
-                            fontSize: "10px",
-                            color: C.textSecondary,
-                            fontStyle: "italic",
-                            marginTop: "2px",
+                            padding: "6px",
+                            textAlign: "center",
+                            borderRight: "1px solid #E5E7EB",
+                            color: "#4B5563",
                           }}
                         >
-                          {tx.note}
-                        </span>
-                      )}
-                    </td>
-                    <td
+                          {idx + 1}
+                        </td>
+                        <td
+                          style={{
+                            padding: "6px 8px",
+                            textAlign: "center",
+                            borderRight: "1px solid #E5E7EB",
+                            whiteSpace: "nowrap",
+                            color: "#111827",
+                          }}
+                        >
+                          {formatShortDate(tx.created_at)}
+                        </td>
+                        <td
+                          style={{
+                            padding: "6px 8px",
+                            textAlign: "center",
+                            borderRight: "1px solid #E5E7EB",
+                            fontFamily: fontMono,
+                            fontSize: "10px",
+                            color: "#374151",
+                          }}
+                        >
+                          {formatTime(tx.created_at)}
+                        </td>
+                        <td
+                          style={{
+                            padding: "6px 10px",
+                            borderRight: "1px solid #E5E7EB",
+                            color: "#111827",
+                          }}
+                        >
+                          <span style={{ fontWeight: 600 }}>
+                            {tx.item_name}
+                          </span>
+                          {tx.note && (
+                            <span
+                              style={{
+                                color: "#4B5563",
+                                fontSize: "10px",
+                                marginLeft: "6px",
+                                fontStyle: "italic",
+                              }}
+                            >
+                              ({tx.note})
+                            </span>
+                          )}
+                        </td>
+                        <td
+                          style={{
+                            padding: "6px 10px",
+                            textAlign: "right",
+                            fontWeight: 700,
+                            fontFamily: fontMono,
+                            fontSize: "11px",
+                            color: "#000000",
+                          }}
+                        >
+                          {formatRupiah(tx.amount)}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+
+                  {/* Jika hanya 1 halaman, tampilkan baris Total langsung di bawah */}
+                  {!needsPage2 && page1Transactions.length > 0 && (
+                    <tr
                       style={{
-                        padding: "10px 12px",
-                        textAlign: "right",
-                        whiteSpace: "nowrap",
-                        fontWeight: 700,
-                        color: C.accentTeal,
-                        fontFamily: fontMono,
+                        backgroundColor: "#E5E7EB",
+                        borderTop: "2px solid #000000",
+                        fontWeight: 800,
                       }}
                     >
-                      {formatRupiah(tx.amount)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      <td
+                        colSpan={4}
+                        style={{
+                          padding: "8px 10px",
+                          textAlign: "right",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.5px",
+                          borderRight: "1px solid #D1D5DB",
+                          fontSize: "11px",
+                        }}
+                      >
+                        Total Keseluruhan :
+                      </td>
+                      <td
+                        style={{
+                          padding: "8px 10px",
+                          textAlign: "right",
+                          fontFamily: fontMono,
+                          fontSize: "12px",
+                          fontWeight: 900,
+                          color: "#000000",
+                        }}
+                      >
+                        {formatRupiah(totalAmount)}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
 
-            {transactions.length > 22 && (
-              <p
+              {needsPage2 && (
+                <div
+                  style={{
+                    textAlign: "right",
+                    fontSize: "10px",
+                    color: "#6B7280",
+                    fontStyle: "italic",
+                    marginTop: "6px",
+                  }}
+                >
+                  * Bersambung ke halaman 2...
+                </div>
+              )}
+            </div>
+
+            {/* Kolom Tanda Tangan Formal (Jika 1 Halaman) */}
+            {!needsPage2 && (
+              <div
                 style={{
+                  marginTop: "36px",
+                  display: "flex",
+                  justifyContent: "space-between",
                   fontSize: "11px",
-                  color: C.textSecondary,
-                  fontStyle: "italic",
-                  textAlign: "center",
-                  marginTop: "16px",
+                  padding: "0 24px",
                 }}
               >
-                * Menampilkan 22 transaksi pertama pada dokumen ringkas ini.
-              </p>
+                <div style={{ textAlign: "center", width: "160px" }}>
+                  <div>Mengetahui,</div>
+                  <div style={{ marginTop: "55px", borderBottom: "1px solid #000000" }}></div>
+                  <div style={{ marginTop: "4px", color: "#6B7280" }}>( Orang Tua / Wali )</div>
+                </div>
+
+                <div style={{ textAlign: "center", width: "160px" }}>
+                  <div>Pembuat Laporan,</div>
+                  <div style={{ marginTop: "55px", borderBottom: "1px solid #000000" }}>
+                    <strong>{ownerName}</strong>
+                  </div>
+                  <div style={{ marginTop: "4px", color: "#6B7280" }}>( Pemilik Jurnal )</div>
+                </div>
+              </div>
             )}
           </div>
 
-          {/* Footer Page 3 (Sesuai Blueprint: "Generated by DUITKU") */}
+          {/* Footer Dokumen Halaman 1 */}
           <div
             style={{
-              borderTop: `1px solid ${C.border}`,
-              paddingTop: "16px",
+              borderTop: "1px solid #D1D5DB",
+              paddingTop: "10px",
               display: "flex",
-              alignItems: "center",
               justifyContent: "space-between",
-              fontSize: "12px",
-              color: C.textSecondary,
+              fontSize: "10px",
+              color: "#6B7280",
             }}
           >
-            <span style={{ fontWeight: 600, color: C.textPrimary }}>
-              Generated by DUITKU
+            <span>Generated by DUITKU Financial System</span>
+            <span>
+              Halaman 1 dari {totalPages}
             </span>
-            <span>Halaman 3 dari 3</span>
           </div>
         </div>
+
+        {/* ===================================================
+            HALAMAN 2 — LANJUTAN TABEL (HANYA JIKA DIBUTUHKAN)
+            =================================================== */}
+        {needsPage2 && (
+          <div
+            id="pdf-page-2"
+            className="pdf-report-page"
+            style={{
+              width: "794px",
+              height: "1123px",
+              padding: "54px 60px",
+              boxSizing: "border-box",
+              backgroundColor: "#FFFFFF",
+              color: "#000000",
+              fontFamily: fontClean,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+            }}
+          >
+            <div>
+              {/* Header Lanjutan Halaman 2 */}
+              <div
+                style={{
+                  borderBottom: "1px solid #000000",
+                  paddingBottom: "8px",
+                  marginBottom: "18px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: "11px",
+                  color: "#374151",
+                }}
+              >
+                <span>
+                  <strong>LAPORAN PENGELUARAN — {monthName}</strong> (Lanjutan)
+                </span>
+                <span>Nama Jurnal: {ownerName}</span>
+              </div>
+
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse: "collapse",
+                  fontSize: "11px",
+                  border: "1px solid #9CA3AF",
+                }}
+              >
+                <thead>
+                  <tr
+                    style={{
+                      backgroundColor: "#E5E7EB",
+                      borderBottom: "1.5px solid #000000",
+                      color: "#000000",
+                    }}
+                  >
+                    <th
+                      style={{
+                        padding: "8px 6px",
+                        textAlign: "center",
+                        width: "35px",
+                        borderRight: "1px solid #D1D5DB",
+                        fontWeight: 700,
+                      }}
+                    >
+                      No
+                    </th>
+                    <th
+                      style={{
+                        padding: "8px 8px",
+                        textAlign: "center",
+                        width: "85px",
+                        borderRight: "1px solid #D1D5DB",
+                        fontWeight: 700,
+                      }}
+                    >
+                      Tanggal
+                    </th>
+                    <th
+                      style={{
+                        padding: "8px 8px",
+                        textAlign: "center",
+                        width: "55px",
+                        borderRight: "1px solid #D1D5DB",
+                        fontWeight: 700,
+                      }}
+                    >
+                      Jam
+                    </th>
+                    <th
+                      style={{
+                        padding: "8px 10px",
+                        textAlign: "left",
+                        borderRight: "1px solid #D1D5DB",
+                        fontWeight: 700,
+                      }}
+                    >
+                      Barang / Keterangan
+                    </th>
+                    <th
+                      style={{
+                        padding: "8px 10px",
+                        textAlign: "right",
+                        width: "110px",
+                        fontWeight: 700,
+                      }}
+                    >
+                      Nominal
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {page2Transactions.map((tx, idx) => (
+                    <tr
+                      key={tx.id}
+                      style={{
+                        borderBottom: "1px solid #E5E7EB",
+                        backgroundColor:
+                          idx % 2 === 1 ? "#F9FAFB" : "#FFFFFF",
+                      }}
+                    >
+                      <td
+                        style={{
+                          padding: "6px",
+                          textAlign: "center",
+                          borderRight: "1px solid #E5E7EB",
+                          color: "#4B5563",
+                        }}
+                      >
+                        {ROWS_PAGE_1 + idx + 1}
+                      </td>
+                      <td
+                        style={{
+                          padding: "6px 8px",
+                          textAlign: "center",
+                          borderRight: "1px solid #E5E7EB",
+                          whiteSpace: "nowrap",
+                          color: "#111827",
+                        }}
+                      >
+                        {formatShortDate(tx.created_at)}
+                      </td>
+                      <td
+                        style={{
+                          padding: "6px 8px",
+                          textAlign: "center",
+                          borderRight: "1px solid #E5E7EB",
+                          fontFamily: fontMono,
+                          fontSize: "10px",
+                          color: "#374151",
+                        }}
+                      >
+                        {formatTime(tx.created_at)}
+                      </td>
+                      <td
+                        style={{
+                          padding: "6px 10px",
+                          borderRight: "1px solid #E5E7EB",
+                          color: "#111827",
+                        }}
+                      >
+                        <span style={{ fontWeight: 600 }}>{tx.item_name}</span>
+                        {tx.note && (
+                          <span
+                            style={{
+                              color: "#4B5563",
+                              fontSize: "10px",
+                              marginLeft: "6px",
+                              fontStyle: "italic",
+                            }}
+                          >
+                            ({tx.note})
+                          </span>
+                        )}
+                      </td>
+                      <td
+                        style={{
+                          padding: "6px 10px",
+                          textAlign: "right",
+                          fontWeight: 700,
+                          fontFamily: fontMono,
+                          fontSize: "11px",
+                          color: "#000000",
+                        }}
+                      >
+                        {formatRupiah(tx.amount)}
+                      </td>
+                    </tr>
+                  ))}
+
+                  {/* Total Baris Akhir di Halaman 2 */}
+                  <tr
+                    style={{
+                      backgroundColor: "#E5E7EB",
+                      borderTop: "2px solid #000000",
+                      fontWeight: 800,
+                    }}
+                  >
+                    <td
+                      colSpan={4}
+                      style={{
+                        padding: "8px 10px",
+                        textAlign: "right",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.5px",
+                        borderRight: "1px solid #D1D5DB",
+                        fontSize: "11px",
+                      }}
+                    >
+                      Total Keseluruhan :
+                    </td>
+                    <td
+                      style={{
+                        padding: "8px 10px",
+                        textAlign: "right",
+                        fontFamily: fontMono,
+                        fontSize: "12px",
+                        fontWeight: 900,
+                        color: "#000000",
+                      }}
+                    >
+                      {formatRupiah(totalAmount)}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              {/* Tanda Tangan Formal Halaman 2 */}
+              <div
+                style={{
+                  marginTop: "40px",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  fontSize: "11px",
+                  padding: "0 24px",
+                }}
+              >
+                <div style={{ textAlign: "center", width: "160px" }}>
+                  <div>Mengetahui,</div>
+                  <div style={{ marginTop: "55px", borderBottom: "1px solid #000000" }}></div>
+                  <div style={{ marginTop: "4px", color: "#6B7280" }}>( Orang Tua / Wali )</div>
+                </div>
+
+                <div style={{ textAlign: "center", width: "160px" }}>
+                  <div>Pembuat Laporan,</div>
+                  <div style={{ marginTop: "55px", borderBottom: "1px solid #000000" }}>
+                    <strong>{ownerName}</strong>
+                  </div>
+                  <div style={{ marginTop: "4px", color: "#6B7280" }}>( Pemilik Jurnal )</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Dokumen Halaman 2 */}
+            <div
+              style={{
+                borderTop: "1px solid #D1D5DB",
+                paddingTop: "10px",
+                display: "flex",
+                justifyContent: "space-between",
+                fontSize: "10px",
+                color: "#6B7280",
+              }}
+            >
+              <span>Generated by DUITKU Financial System</span>
+              <span>Halaman 2 dari 2</span>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

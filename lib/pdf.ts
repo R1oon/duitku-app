@@ -7,19 +7,18 @@ export interface GeneratePdfOptions {
 }
 
 /**
- * Menghasilkan dokumen PDF 3 halaman A4 Portrait menggunakan jsPDF dan html2canvas
+ * Menghasilkan dokumen PDF format formal A4 Portrait (1 atau 2 halaman)
  */
-export async function generate3PagePdf(options: GeneratePdfOptions = {}): Promise<boolean> {
+export async function generateReportPdf(options: GeneratePdfOptions = {}): Promise<boolean> {
   const { fileName = "Laporan_Pengeluaran_DUITKU.pdf", onProgress } = options;
 
   try {
     const page1 = document.getElementById("pdf-page-1");
-    const page2 = document.getElementById("pdf-page-2");
-    const page3 = document.getElementById("pdf-page-3");
-
-    if (!page1 || !page2 || !page3) {
-      throw new Error("Elemen template halaman PDF tidak ditemukan di DOM");
+    if (!page1) {
+      throw new Error("Elemen template laporan tidak ditemukan di DOM");
     }
+
+    const page2 = document.getElementById("pdf-page-2");
 
     const pdf = new jsPDF({
       orientation: "portrait",
@@ -29,38 +28,36 @@ export async function generate3PagePdf(options: GeneratePdfOptions = {}): Promis
     });
 
     const canvasOptions = {
-      scale: 2, // Kualitas cetak tinggi (retina)
+      scale: 2, // Kualitas tajam setara 300 DPI
       useCORS: true,
-      backgroundColor: "#0D0D0D",
+      backgroundColor: "#FFFFFF",
       logging: false,
     };
 
-    // Render Halaman 1 (Cover)
-    if (onProgress) onProgress("Menyiapkan Halaman 1 (Cover)...");
+    // Render Halaman 1
+    if (onProgress) onProgress("Menyusun Halaman 1...");
     const canvas1 = await html2canvas(page1, canvasOptions);
-    const imgData1 = canvas1.toDataURL("image/jpeg", 0.95);
+    const imgData1 = canvas1.toDataURL("image/jpeg", 0.96);
     pdf.addImage(imgData1, "JPEG", 0, 0, 210, 297);
 
-    // Render Halaman 2 (Ringkasan & Chart)
-    if (onProgress) onProgress("Menyiapkan Halaman 2 (Ringkasan & Grafik)...");
-    pdf.addPage("a4", "portrait");
-    const canvas2 = await html2canvas(page2, canvasOptions);
-    const imgData2 = canvas2.toDataURL("image/jpeg", 0.95);
-    pdf.addImage(imgData2, "JPEG", 0, 0, 210, 297);
+    // Render Halaman 2 (jika transaksi lebih dari 1 halaman)
+    if (page2) {
+      if (onProgress) onProgress("Menyusun Halaman 2...");
+      pdf.addPage("a4", "portrait");
+      const canvas2 = await html2canvas(page2, canvasOptions);
+      const imgData2 = canvas2.toDataURL("image/jpeg", 0.96);
+      pdf.addImage(imgData2, "JPEG", 0, 0, 210, 297);
+    }
 
-    // Render Halaman 3 (Full Table)
-    if (onProgress) onProgress("Menyiapkan Halaman 3 (Tabel Lengkap)...");
-    pdf.addPage("a4", "portrait");
-    const canvas3 = await html2canvas(page3, canvasOptions);
-    const imgData3 = canvas3.toDataURL("image/jpeg", 0.95);
-    pdf.addImage(imgData3, "JPEG", 0, 0, 210, 297);
-
-    if (onProgress) onProgress("Mengunduh file PDF...");
+    if (onProgress) onProgress("Mengunduh dokumen PDF...");
     pdf.save(fileName);
 
     return true;
   } catch (error: any) {
     console.error("Error saat generate PDF:", error);
-    throw new Error(error.message || "Gagal membuat dokumen PDF");
+    throw new Error(error.message || "Gagal membuat dokumen PDF formal");
   }
 }
+
+// Alias untuk kompatibilitas
+export const generate3PagePdf = generateReportPdf;

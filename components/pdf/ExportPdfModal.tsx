@@ -36,7 +36,7 @@ export function ExportPdfModal({
         </p>
 
         <div className="mt-5 text-[11px] text-[#9CA3AF]/60 uppercase tracking-widest font-semibold">
-          Format A4 Portrait • 3 Halaman
+          Format A4 Portrait • Dokumen Cetak Formal
         </div>
       </div>
     </div>
