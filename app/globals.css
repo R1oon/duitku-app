@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  --color-journal-bg: #0D0D0D;
+  --color-journal-surface: #161616;
+  --color-journal-surface-hover: #1f1f1f;
+  --color-journal-border: #262626;
+  --color-journal-text: #F5F5F5;
+  --color-journal-secondary: #9CA3AF;
+  --color-journal-red: #DC2626;
+  --color-journal-teal: #14B8A6;
+  --color-journal-success: #22C55E;
+
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+  --font-mono: var(--font-roboto-mono), monospace;
+
+  --radius-card: 20px;
+  --radius-modal: 28px;
+}
+
+:root {
+  --background: #0D0D0D;
+  --foreground: #F5F5F5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  background-color: #0D0D0D;
+  color: #F5F5F5;
+  min-height: 100%;
+  font-family: var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Number & Code font helper */
+.font-mono-num {
+  font-family: var(--font-roboto-mono), monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Safe area padding for mobile notches / home bars */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 16px);
+}
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}
