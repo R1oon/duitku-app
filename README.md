@@ -70,32 +70,33 @@
 
 ```text
 duitku-app/
-├── app/
-│   ├── ari/
-│   │   └── page.tsx               # Halaman Dashboard Realtime Viewer & Analitik Bulanan
-│   ├── editor/
-│   │   └── page.tsx               # Halaman Editor Jurnal (Input/Edit/Hapus + Optimistic UI)
-│   ├── globals.css                # Konfigurasi tema Black Journal & Tailwind CSS v4
-│   ├── layout.tsx                 # Root Layout, konfigurasi Font (Inter & Roboto Mono) & Viewport
-│   ├── manifest.ts                # Generator Web App Manifest untuk PWA
-│   └── page.tsx                   # Halaman Gerbang Utama (Gateway Editor / Viewer)
-├── components/
-│   ├── editor/                    # Komponen halaman Editor (Header, SummaryCard, Modal, dll.)
-│   ├── viewer/                    # Komponen halaman Viewer (BigTotal, Timeline, Recharts, Tabel)
-│   └── pdf/                       # Template cetak laporan formal A4 & Modal progres PDF
 ├── docs/
 │   └── blueprint.md               # Dokumen PRD & Master Project Blueprint
-├── lib/
-│   ├── categories.ts              # Klasifikasi kategori otomatis berbasis kata kunci
-│   ├── format.ts                  # Formatter Rupiah (Rp10.000), Jam (12:41), dan Tanggal Indonesia
-│   ├── pdf.ts                     # Engine generator PDF A4 Portrait (jsPDF + html2canvas)
-│   ├── realtime.ts                # Helper subscription channel Supabase Realtime
-│   ├── supabase.ts                # Inisialisasi client Supabase & tipe skema TypeScript
-│   ├── transactions.ts            # CRUD Helper (Select, Insert, Update, Delete)
-│   └── utils.ts                   # Utility penggabung class Tailwind (clsx + tailwind-merge)
-└── public/
-    ├── icons/                     # Ikon aplikasi PWA (192x192, 512x512, Apple Touch Icon, SVG)
-    └── manifest.json              # File konfigurasi PWA standalone
+├── public/
+│   ├── icons/                     # Ikon aplikasi PWA (192x192, 512x512, Apple Touch Icon, SVG)
+│   └── manifest.json              # File konfigurasi PWA standalone
+└── src/
+    ├── app/
+    │   ├── ari/
+    │   │   └── page.tsx           # Halaman Dashboard Realtime Viewer & Analitik Bulanan
+    │   ├── editor/
+    │   │   └── page.tsx           # Halaman Editor Jurnal (Input/Edit/Hapus + Optimistic UI)
+    │   ├── globals.css            # Konfigurasi tema Black Journal & Tailwind CSS v4
+    │   ├── layout.tsx             # Root Layout, konfigurasi Font (Inter & Roboto Mono) & Viewport
+    │   ├── manifest.ts            # Generator Web App Manifest untuk PWA
+    │   └── page.tsx               # Halaman Gerbang Utama (Gateway Editor / Viewer)
+    ├── components/
+    │   ├── editor/                # Komponen halaman Editor (Header, SummaryCard, Modal, dll.)
+    │   ├── viewer/                # Komponen halaman Viewer (BigTotal, Timeline, Recharts, Tabel)
+    │   └── pdf/                   # Template cetak laporan formal A4 & Modal progres PDF
+    └── lib/
+        ├── categories.ts          # Klasifikasi kategori otomatis berbasis kata kunci
+        ├── format.ts              # Formatter Rupiah (Rp10.000), Jam (12:41), dan Tanggal Indonesia
+        ├── pdf.ts                 # Engine generator PDF A4 Portrait (jsPDF + html2canvas)
+        ├── realtime.ts            # Helper subscription channel Supabase Realtime
+        ├── supabase.ts            # Inisialisasi client Supabase & tipe skema TypeScript
+        ├── transactions.ts        # CRUD Helper (Select, Insert, Update, Delete)
+        └── utils.ts               # Utility penggabung class Tailwind (clsx + tailwind-merge)
 ```
 
 ---
