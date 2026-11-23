@@ -29,7 +29,7 @@ export function DeleteConfirmModal({
 
         <h3 className="text-base font-bold text-[#F5F5F5]">Hapus Pengeluaran?</h3>
         <p className="text-xs text-[#9CA3AF] mt-1.5 leading-relaxed">
-          Catatan <span className="font-semibold text-[#F5F5F5]">"{itemName}"</span> akan dihapus permanen dari jurnal.
+          Catatan <span className="font-semibold text-[#F5F5F5]">&quot;{itemName}&quot;</span> akan dihapus permanen dari jurnal.
         </p>
 
         <div className="mt-6 flex items-center gap-3">

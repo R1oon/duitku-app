@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useSyncExternalStore } from "react";
 import {
   PieChart,
   Pie,
@@ -17,12 +17,46 @@ interface CategoryChartProps {
   totalAmount: number;
 }
 
-export function CategoryChart({ categories, totalAmount }: CategoryChartProps) {
-  const [isMounted, setIsMounted] = useState(false);
+const emptySubscribe = () => () => {};
 
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
+interface CustomTooltipProps {
+  active?: boolean;
+  payload?: ReadonlyArray<{ payload: CategorySummary }>;
+  totalAmount: number;
+}
+
+function CustomTooltip({ active, payload, totalAmount }: CustomTooltipProps) {
+  if (active && payload && payload.length) {
+    const item = payload[0].payload;
+    const percentage = totalAmount > 0 ? ((item.value / totalAmount) * 100).toFixed(1) : "0";
+
+    return (
+      <div className="p-3 rounded-xl bg-[#0D0D0D] border border-[#262626] shadow-xl text-xs font-sans">
+        <div className="flex items-center gap-2 mb-1">
+          <span
+            className="w-2.5 h-2.5 rounded-full"
+            style={{ backgroundColor: item.color }}
+          />
+          <span className="font-bold text-[#F5F5F5]">{item.name}</span>
+        </div>
+        <div className="font-mono-num font-semibold text-[#14B8A6]">
+          {formatRupiah(item.value)}
+        </div>
+        <div className="text-[10px] text-[#9CA3AF] mt-0.5 font-mono-num">
+          {percentage}% ({item.count} transaksi)
+        </div>
+      </div>
+    );
+  }
+  return null;
+}
+
+export function CategoryChart({ categories, totalAmount }: CategoryChartProps) {
+  const isMounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
 
   if (categories.length === 0 || totalAmount === 0) {
     return (
@@ -37,33 +71,6 @@ export function CategoryChart({ categories, totalAmount }: CategoryChartProps) {
       </div>
     );
   }
-
-  // Custom Tooltip Black Journal Theme
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (active && payload && payload.length) {
-      const item = payload[0].payload as CategorySummary;
-      const percentage = ((item.value / totalAmount) * 100).toFixed(1);
-
-      return (
-        <div className="p-3 rounded-xl bg-[#0D0D0D] border border-[#262626] shadow-xl text-xs font-sans">
-          <div className="flex items-center gap-2 mb-1">
-            <span
-              className="w-2.5 h-2.5 rounded-full"
-              style={{ backgroundColor: item.color }}
-            />
-            <span className="font-bold text-[#F5F5F5]">{item.name}</span>
-          </div>
-          <div className="font-mono-num font-semibold text-[#14B8A6]">
-            {formatRupiah(item.value)}
-          </div>
-          <div className="text-[10px] text-[#9CA3AF] mt-0.5 font-mono-num">
-            {percentage}% ({item.count} transaksi)
-          </div>
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <div className="mt-5 p-6 rounded-[20px] bg-[#161616] border border-[#262626]">
@@ -95,7 +102,15 @@ export function CategoryChart({ categories, totalAmount }: CategoryChartProps) {
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip
+                content={({ active, payload }) => (
+                  <CustomTooltip
+                    active={active}
+                    payload={payload as unknown as ReadonlyArray<{ payload: CategorySummary }>}
+                    totalAmount={totalAmount}
+                  />
+                )}
+              />
             </PieChart>
           </ResponsiveContainer>
         ) : (

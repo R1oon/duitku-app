@@ -7,6 +7,16 @@ export interface DbResult<T> {
   error: Error | null;
 }
 
+function getErrorMessage(err: unknown, fallback: string): string {
+  if (err instanceof Error && err.message) {
+    return err.message;
+  }
+  if (typeof err === "string") {
+    return err;
+  }
+  return fallback;
+}
+
 /**
  * Mengambil semua data transaksi terurut dari yang terbaru (created_at DESC)
  */
@@ -25,8 +35,8 @@ export async function getTransactions(limit?: number): Promise<DbResult<Transact
     if (error) throw error;
 
     return { data: data || [], error: null };
-  } catch (err: any) {
-    return { data: null, error: new Error(err.message || "Gagal mengambil data transaksi") };
+  } catch (err: unknown) {
+    return { data: null, error: new Error(getErrorMessage(err, "Gagal mengambil data transaksi")) };
   }
 }
 
@@ -49,8 +59,8 @@ export async function getTodayTransactions(): Promise<DbResult<Transaction[]>> {
     if (error) throw error;
 
     return { data: data || [], error: null };
-  } catch (err: any) {
-    return { data: null, error: new Error(err.message || "Gagal mengambil transaksi hari ini") };
+  } catch (err: unknown) {
+    return { data: null, error: new Error(getErrorMessage(err, "Gagal mengambil transaksi hari ini")) };
   }
 }
 
@@ -79,8 +89,8 @@ export async function getMonthlyTransactions(
     if (error) throw error;
 
     return { data: data || [], error: null };
-  } catch (err: any) {
-    return { data: null, error: new Error(err.message || "Gagal mengambil rekap transaksi bulanan") };
+  } catch (err: unknown) {
+    return { data: null, error: new Error(getErrorMessage(err, "Gagal mengambil rekap transaksi bulanan")) };
   }
 }
 
@@ -114,8 +124,8 @@ export async function createTransaction(
     if (error) throw error;
 
     return { data, error: null };
-  } catch (err: any) {
-    return { data: null, error: new Error(err.message || "Gagal menyimpan transaksi") };
+  } catch (err: unknown) {
+    return { data: null, error: new Error(getErrorMessage(err, "Gagal menyimpan transaksi")) };
   }
 }
 
@@ -154,8 +164,8 @@ export async function updateTransaction(
     if (error) throw error;
 
     return { data, error: null };
-  } catch (err: any) {
-    return { data: null, error: new Error(err.message || "Gagal memperbarui transaksi") };
+  } catch (err: unknown) {
+    return { data: null, error: new Error(getErrorMessage(err, "Gagal memperbarui transaksi")) };
   }
 }
 
@@ -176,7 +186,7 @@ export async function deleteTransaction(id: string): Promise<DbResult<boolean>> 
     if (error) throw error;
 
     return { data: true, error: null };
-  } catch (err: any) {
-    return { data: null, error: new Error(err.message || "Gagal menghapus transaksi") };
+  } catch (err: unknown) {
+    return { data: null, error: new Error(getErrorMessage(err, "Gagal menghapus transaksi")) };
   }
 }

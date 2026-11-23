@@ -1,6 +1,7 @@
 import React from "react";
 import { Transaction } from "@/lib/supabase";
 import { formatRupiah, formatTime } from "@/lib/format";
+import { categorizeItem, CATEGORY_COLORS } from "@/lib/categories";
 
 interface TimelineItemProps {
   transaction: Transaction;
@@ -8,19 +9,32 @@ interface TimelineItemProps {
 }
 
 export function TimelineItem({ transaction, isRecent }: TimelineItemProps) {
+  const category = categorizeItem(transaction.item_name);
+  const categoryColor = CATEGORY_COLORS[category];
+
   return (
     <div
       className={`p-5 rounded-[20px] bg-[#161616] border transition-all duration-500 ${
         isRecent
           ? "border-[#22C55E]/60 shadow-lg shadow-[#22C55E]/10 animate-in fade-in slide-in-from-top-2"
-          : "border-[#262626]"
+          : "border-[#262626] hover:border-[#383838]"
       }`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-mono-num font-semibold text-[#9CA3AF]">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-mono-num font-semibold text-[#A1A1AA]">
               {formatTime(transaction.created_at)}
+            </span>
+            <span
+              className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border"
+              style={{
+                color: categoryColor,
+                borderColor: `${categoryColor}35`,
+                backgroundColor: `${categoryColor}12`,
+              }}
+            >
+              {category}
             </span>
             {isRecent && (
               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#22C55E]/20 text-[#22C55E] animate-pulse">
@@ -29,12 +43,12 @@ export function TimelineItem({ transaction, isRecent }: TimelineItemProps) {
             )}
           </div>
 
-          <h3 className="mt-1 text-base font-semibold text-[#F5F5F5] break-words">
+          <h3 className="mt-1.5 text-base font-semibold text-[#F5F5F5] break-words">
             {transaction.item_name}
           </h3>
 
           {transaction.note && (
-            <p className="mt-1 text-xs text-[#9CA3AF] break-words line-clamp-2">
+            <p className="mt-1 text-xs text-[#A1A1AA] break-words line-clamp-2">
               {transaction.note}
             </p>
           )}

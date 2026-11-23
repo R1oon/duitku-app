@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Transaction } from "@/lib/supabase";
@@ -27,38 +27,23 @@ export default function ViewerPage() {
   const [monthlyTransactions, setMonthlyTransactions] = useState<Transaction[]>([]);
   const [isLoadingMonthly, setIsLoadingMonthly] = useState(true);
 
-  // 1. Fetch Transaksi Hari Ini
-  const loadTodayData = useCallback(async () => {
-    setIsLoadingToday(true);
-    const { data, error } = await getTodayTransactions();
-
-    if (error) {
-      console.error("Gagal mengambil data transaksi hari ini:", error);
-    } else {
-      setTodayTransactions(data || []);
-    }
-    setIsLoadingToday(false);
-  }, []);
-
-  // 2. Fetch Transaksi Bulanan
-  const loadMonthlyData = useCallback(async (targetDate: Date) => {
-    setIsLoadingMonthly(true);
-    const year = targetDate.getFullYear();
-    const month = targetDate.getMonth() + 1; // 1-12
-
-    const { data, error } = await getMonthlyTransactions(year, month);
-    if (error) {
-      console.error("Gagal mengambil data bulanan:", error);
-    } else {
-      setMonthlyTransactions(data || []);
-    }
-    setIsLoadingMonthly(false);
-  }, []);
-
-  // Inisialisasi awal
+  // 1. Fetch & Subscribe Transaksi Hari Ini
   useEffect(() => {
-    loadTodayData();
-    loadMonthlyData(selectedMonthDate);
+    let isCancelled = false;
+
+    async function fetchTodayData() {
+      const { data, error } = await getTodayTransactions();
+      if (!isCancelled) {
+        if (error) {
+          console.error("Gagal mengambil data transaksi hari ini:", error);
+        } else {
+          setTodayTransactions(data || []);
+        }
+        setIsLoadingToday(false);
+      }
+    }
+
+    fetchTodayData();
 
     // Berlangganan Realtime Supabase
     const unsubscribe = subscribeToTransactions(
@@ -125,35 +110,56 @@ export default function ViewerPage() {
     );
 
     return () => {
+      isCancelled = true;
       unsubscribe();
     };
-  }, [loadTodayData, loadMonthlyData]);
+  }, []);
+
+  // 2. Fetch Transaksi Rekap Bulanan saat selectedMonthDate berubah
+  useEffect(() => {
+    let isCancelled = false;
+
+    async function fetchMonthly() {
+      const year = selectedMonthDate.getFullYear();
+      const month = selectedMonthDate.getMonth() + 1; // 1-12
+
+      const { data, error } = await getMonthlyTransactions(year, month);
+      if (!isCancelled) {
+        if (error) {
+          console.error("Gagal mengambil data bulanan:", error);
+        } else {
+          setMonthlyTransactions(data || []);
+        }
+        setIsLoadingMonthly(false);
+      }
+    }
+
+    fetchMonthly();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [selectedMonthDate]);
 
   // Handler Navigasi Bulan Sebelumnya
   const handlePrevMonth = () => {
-    const prev = new Date(
-      selectedMonthDate.getFullYear(),
-      selectedMonthDate.getMonth() - 1,
-      1
+    setIsLoadingMonthly(true);
+    setSelectedMonthDate(
+      (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1)
     );
-    setSelectedMonthDate(prev);
-    loadMonthlyData(prev);
   };
 
   // Handler Navigasi Bulan Berikutnya
   const handleNextMonth = () => {
     const now = new Date();
-    const next = new Date(
-      selectedMonthDate.getFullYear(),
-      selectedMonthDate.getMonth() + 1,
-      1
-    );
-
-    // Batasi agar tidak melebihi bulan berjalan saat ini
-    if (next <= now || (next.getFullYear() === now.getFullYear() && next.getMonth() === now.getMonth())) {
-      setSelectedMonthDate(next);
-      loadMonthlyData(next);
-    }
+    setSelectedMonthDate((prev) => {
+      const next = new Date(prev.getFullYear(), prev.getMonth() + 1, 1);
+      if (next <= now || (next.getFullYear() === now.getFullYear() && next.getMonth() === now.getMonth())) {
+        setIsLoadingMonthly(true);
+        return next;
+      }
+      return prev;
+    });
   };
 
   // Cek apakah bisa navigasi ke bulan selanjutnya
@@ -200,8 +206,9 @@ export default function ViewerPage() {
       setTimeout(() => {
         setIsExportingPdf(false);
       }, 1600);
-    } catch (err: any) {
-      alert("Gagal membuat PDF: " + (err.message || "Terjadi kesalahan"));
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Terjadi kesalahan saat mencetak PDF";
+      alert("Gagal membuat PDF: " + message);
       setIsExportingPdf(false);
     }
   };

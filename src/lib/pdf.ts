@@ -53,9 +53,10 @@ export async function generateReportPdf(options: GeneratePdfOptions = {}): Promi
     pdf.save(fileName);
 
     return true;
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Gagal membuat dokumen PDF formal";
     console.error("Error saat generate PDF:", error);
-    throw new Error(error.message || "Gagal membuat dokumen PDF formal");
+    throw new Error(message);
   }
 }
 

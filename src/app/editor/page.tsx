@@ -29,12 +29,9 @@ export default function EditorPage() {
   const [editingItem, setEditingItem] = useState<Transaction | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; itemName: string } | null>(null);
 
-  // Fetch initial data
-  const loadTransactions = useCallback(async () => {
-    setIsLoading(true);
-    setStatus("connecting");
+  // Fetch data
+  const refreshTransactions = useCallback(async () => {
     const { data, error } = await getTodayTransactions();
-
     if (error) {
       console.error("Error loading today transactions:", error);
       setStatus("error");
@@ -46,7 +43,23 @@ export default function EditorPage() {
   }, []);
 
   useEffect(() => {
-    loadTransactions();
+    let isCancelled = false;
+
+    async function init() {
+      const { data, error } = await getTodayTransactions();
+      if (isCancelled) return;
+
+      if (error) {
+        console.error("Error loading today transactions:", error);
+        setStatus("error");
+      } else {
+        setTransactions(data || []);
+        setStatus("connected");
+      }
+      setIsLoading(false);
+    }
+
+    init();
 
     // Subscribe to realtime updates for synchronization
     const unsubscribe = subscribeToTransactions((payload) => {
@@ -79,9 +92,10 @@ export default function EditorPage() {
     });
 
     return () => {
+      isCancelled = true;
       unsubscribe();
     };
-  }, [loadTransactions]);
+  }, []);
 
   // Hitung total hari ini secara instan dari state lokal
   const todayTotal = useMemo(() => {
@@ -211,7 +225,7 @@ export default function EditorPage() {
   return (
     <main className="flex flex-col flex-1 px-4 py-6 pb-safe relative">
       {/* Header dengan status koneksi Supabase */}
-      <Header status={status} />
+      <Header status={status} onRetry={refreshTransactions} />
 
       {/* Banner Notifikasi Error jika rollback terjadi */}
       {errorMessage && (

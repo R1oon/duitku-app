@@ -3,9 +3,10 @@ import { formatHeaderDate } from "@/lib/format";
 
 interface HeaderProps {
   status: "connected" | "connecting" | "error";
+  onRetry?: () => void;
 }
 
-export function Header({ status }: HeaderProps) {
+export function Header({ status, onRetry }: HeaderProps) {
   const today = formatHeaderDate(new Date());
 
   return (
@@ -18,7 +19,13 @@ export function Header({ status }: HeaderProps) {
         <p className="text-xs text-[#9CA3AF] mt-0.5">{today}</p>
       </div>
 
-      <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#161616] border border-[#262626]">
+      <div
+        onClick={status === "error" && onRetry ? onRetry : undefined}
+        className={`flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#161616] border border-[#262626] transition-all ${
+          status === "error" && onRetry ? "cursor-pointer hover:border-[#DC2626]/50 active:scale-95" : ""
+        }`}
+        title={status === "error" && onRetry ? "Klik untuk hubungkan ulang" : undefined}
+      >
         {status === "connected" && (
           <>
             <span className="relative flex h-2 w-2">
@@ -39,7 +46,7 @@ export function Header({ status }: HeaderProps) {
         {status === "error" && (
           <>
             <span className="h-2 w-2 rounded-full bg-[#DC2626]"></span>
-            <span className="text-[11px] font-medium text-[#DC2626]">Offline</span>
+            <span className="text-[11px] font-medium text-[#DC2626]">Offline (Coba lagi)</span>
           </>
         )}
       </div>
