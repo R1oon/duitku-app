@@ -1016,7 +1016,7 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                             lineHeight: "1.2",
                           }}
                         >
-                          Orang Tua / Wali
+                          Orang Tua
                         </div>
                         <div
                           style={{
