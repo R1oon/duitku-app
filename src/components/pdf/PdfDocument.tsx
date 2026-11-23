@@ -52,9 +52,7 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
     ).padStart(2, "0")}`;
     const docNumber = `DK/${yearMonth}/${ownerName.toUpperCase()}`;
 
-    // Smart Dynamic Pagination: Pastikan seluruh transaksi termuat tanpa cutoff
-    // Halaman 1: memuat header, 3 KPI cards, visual progress bar, dan 16 baris transaksi
-    // Halaman lanjutan: memuat header ringkas dan 22-26 baris transaksi
+    // Smart Dynamic Pagination
     const pages: Transaction[][] = [];
     if (transactions.length <= 13) {
       pages.push(transactions);
@@ -64,7 +62,6 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
       let currentIdx = 16;
       while (currentIdx < transactions.length) {
         const remaining = transactions.length - currentIdx;
-        // Jika sisa baris muat bersama total & tanda tangan di halaman terakhir (<= 20 baris)
         if (remaining <= 20) {
           pages.push(transactions.slice(currentIdx));
           break;
@@ -98,7 +95,6 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
           const isFirstPage = pageNumber === 1;
           const isLastPage = pageNumber === totalPages;
 
-          // Nomor urut awal transaksi pada halaman ini
           let startRowNumber = 1;
           for (let p = 0; p < pageIdx; p++) {
             startRowNumber += pages[p].length;
@@ -112,7 +108,7 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
               style={{
                 width: "794px",
                 height: "1123px",
-                padding: "40px 48px",
+                padding: "38px 46px",
                 boxSizing: "border-box",
                 backgroundColor: "#FFFFFF",
                 color: "#0F172A",
@@ -125,40 +121,41 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
             >
               <div>
                 {/* ===================================================
-                    HEADER: HALAMAN 1 (LENGKAP) VS HALAMAN LANJUTAN (RINGKAS)
+                    HEADER HALAMAN 1 (LENGKAP) VS HALAMAN LANJUTAN
                     =================================================== */}
                 {isFirstPage ? (
                   <div
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      paddingBottom: "16px",
+                      alignItems: "center",
+                      paddingBottom: "14px",
                       borderBottom: "2px solid #0F172A",
-                      marginBottom: "16px",
+                      marginBottom: "14px",
                     }}
                   >
                     <div>
                       <div
                         style={{
-                          display: "flex",
+                          display: "inline-flex",
                           alignItems: "center",
                           gap: "8px",
-                          marginBottom: "6px",
+                          marginBottom: "4px",
                         }}
                       >
                         <div
                           style={{
                             backgroundColor: "#0F172A",
                             color: "#FFFFFF",
-                            padding: "3px 9px",
-                            borderRadius: "5px",
+                            padding: "3px 8px",
+                            borderRadius: "4px",
                             fontSize: "11px",
                             fontWeight: 800,
                             letterSpacing: "1px",
-                            display: "flex",
+                            display: "inline-flex",
                             alignItems: "center",
-                            gap: "6px",
+                            gap: "5px",
+                            lineHeight: "1",
                           }}
                         >
                           <span
@@ -173,7 +170,7 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                         </div>
                         <span
                           style={{
-                            fontSize: "10px",
+                            fontSize: "9.5px",
                             fontWeight: 700,
                             letterSpacing: "1px",
                             color: "#64748B",
@@ -185,11 +182,12 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                       </div>
                       <h1
                         style={{
-                          fontSize: "22px",
+                          fontSize: "20px",
                           fontWeight: 800,
                           color: "#0F172A",
-                          margin: "0 0 4px 0",
+                          margin: "0 0 3px 0",
                           letterSpacing: "-0.5px",
+                          lineHeight: "1.2",
                         }}
                       >
                         Laporan Pengeluaran Bulanan
@@ -197,8 +195,9 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                       <p
                         style={{
                           margin: 0,
-                          fontSize: "11px",
+                          fontSize: "10.5px",
                           color: "#64748B",
+                          lineHeight: "1.2",
                         }}
                       >
                         Jurnal pengeluaran personal dan transparansi keuangan keluarga
@@ -213,48 +212,54 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                         borderRadius: "8px",
                         padding: "8px 12px",
                         textAlign: "right",
-                        minWidth: "180px",
+                        minWidth: "175px",
+                        boxSizing: "border-box",
                       }}
                     >
                       <div
                         style={{
                           fontSize: "9px",
-                          fontWeight: 700,
+                          fontWeight: 800,
                           color: "#64748B",
                           textTransform: "uppercase",
                           letterSpacing: "0.5px",
+                          lineHeight: "1.2",
                         }}
                       >
-                        NO. DOKUMEN
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "11px",
-                          fontWeight: 800,
-                          color: "#0F172A",
-                          fontFamily: "monospace",
-                          margin: "2px 0 4px 0",
-                        }}
-                      >
-                        {docNumber}
-                      </div>
-                      <div style={{ fontSize: "10px", color: "#334155" }}>
-                        <strong>Periode:</strong> {monthName}
+                        NO. DOKUMEN:{" "}
+                        <span style={{ color: "#0F172A", fontFamily: "monospace" }}>
+                          {docNumber}
+                        </span>
                       </div>
                       <div
                         style={{
                           fontSize: "10px",
-                          color: "#059669",
-                          fontWeight: 700,
-                          marginTop: "2px",
+                          color: "#334155",
+                          marginTop: "3px",
+                          lineHeight: "1.2",
                         }}
                       >
-                        ✓ RESMI & TERVERIFIKASI
+                        <strong>Periode:</strong> {monthName} • <strong>Pemilik:</strong> {ownerName}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "9.5px",
+                          color: "#059669",
+                          fontWeight: 800,
+                          marginTop: "3px",
+                          lineHeight: "1.2",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "flex-end",
+                          gap: "4px",
+                        }}
+                      >
+                        <span>✓</span> RESMI & TERVERIFIKASI
                       </div>
                     </div>
                   </div>
                 ) : (
-                  /* Header Ringkas untuk Halaman 2, 3, dst. */
+                  /* Header Ringkas untuk Halaman Lanjutan */
                   <div
                     style={{
                       display: "flex",
@@ -262,10 +267,10 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                       alignItems: "center",
                       paddingBottom: "10px",
                       borderBottom: "1.5px solid #0F172A",
-                      marginBottom: "14px",
+                      marginBottom: "12px",
                     }}
                   >
-                    <div>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                       <span
                         style={{
                           fontSize: "13px",
@@ -279,10 +284,9 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                         style={{
                           fontSize: "11px",
                           color: "#64748B",
-                          marginLeft: "10px",
                         }}
                       >
-                        Pemilik: {ownerName}
+                        • Pemilik: {ownerName}
                       </span>
                     </div>
                     <div
@@ -299,14 +303,14 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                 )}
 
                 {/* ===================================================
-                    KPI CARDS & CATEGORY DISTRIBUTION BAR (HANYA HALAMAN 1)
+                    KPI CARDS & CATEGORY BAR (HANYA HALAMAN 1)
                     =================================================== */}
                 {isFirstPage && (
                   <>
                     <div
                       style={{
                         display: "grid",
-                        gridTemplateColumns: "1.4fr 1fr 1fr",
+                        gridTemplateColumns: "1.3fr 1fr 1fr",
                         gap: "10px",
                         marginBottom: "12px",
                       }}
@@ -317,7 +321,12 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                           backgroundColor: "#F0FDF4",
                           border: "1.5px solid #059669",
                           borderRadius: "10px",
-                          padding: "12px 14px",
+                          padding: "10px 14px",
+                          height: "78px",
+                          boxSizing: "border-box",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "space-between",
                         }}
                       >
                         <div
@@ -327,29 +336,30 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                             color: "#059669",
                             textTransform: "uppercase",
                             letterSpacing: "0.8px",
+                            lineHeight: "1",
                           }}
                         >
                           TOTAL PENGELUARAN BULANAN
                         </div>
                         <div
                           style={{
-                            fontSize: "21px",
+                            fontSize: "20px",
                             fontWeight: 900,
                             color: "#065F46",
-                            marginTop: "2px",
                             fontVariantNumeric: "tabular-nums",
+                            lineHeight: "1.1",
                           }}
                         >
                           {formatRupiah(totalAmount)}
                         </div>
                         <div
                           style={{
-                            fontSize: "9.5px",
+                            fontSize: "9px",
                             color: "#047857",
-                            marginTop: "1px",
+                            lineHeight: "1",
                           }}
                         >
-                          Periode {monthName}
+                          Akumulasi Seluruh Kategori
                         </div>
                       </div>
 
@@ -359,7 +369,12 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                           backgroundColor: "#F8FAFC",
                           border: "1.5px solid #CBD5E1",
                           borderRadius: "10px",
-                          padding: "12px 14px",
+                          padding: "10px 14px",
+                          height: "78px",
+                          boxSizing: "border-box",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "space-between",
                         }}
                       >
                         <div
@@ -369,6 +384,7 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                             color: "#64748B",
                             textTransform: "uppercase",
                             letterSpacing: "0.8px",
+                            lineHeight: "1",
                           }}
                         >
                           AKTIVITAS PENGELUARAN
@@ -378,7 +394,7 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                             fontSize: "17px",
                             fontWeight: 800,
                             color: "#0F172A",
-                            marginTop: "2px",
+                            lineHeight: "1.1",
                           }}
                         >
                           {totalTransactions}{" "}
@@ -394,22 +410,27 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                         </div>
                         <div
                           style={{
-                            fontSize: "9.5px",
+                            fontSize: "9px",
                             color: "#64748B",
-                            marginTop: "1px",
+                            lineHeight: "1",
                           }}
                         >
-                          Rata-rata: {formatRupiah(averagePerDay)}/hari
+                          Rata-rata: {formatRupiah(averagePerDay)} / hari
                         </div>
                       </div>
 
-                      {/* Card 3: Kategori Terbesar */}
+                      {/* Card 3: Kategori Dominan */}
                       <div
                         style={{
                           backgroundColor: "#F8FAFC",
                           border: "1.5px solid #CBD5E1",
                           borderRadius: "10px",
-                          padding: "12px 14px",
+                          padding: "10px 14px",
+                          height: "78px",
+                          boxSizing: "border-box",
+                          display: "flex",
+                          flexDirection: "column",
+                          justifyContent: "space-between",
                         }}
                       >
                         <div
@@ -419,25 +440,26 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                             color: "#64748B",
                             textTransform: "uppercase",
                             letterSpacing: "0.8px",
+                            lineHeight: "1",
                           }}
                         >
-                          KATEGORI UTAMA
+                          KATEGORI DOMINAN
                         </div>
                         <div
                           style={{
                             fontSize: "16px",
                             fontWeight: 800,
                             color: "#0F172A",
-                            marginTop: "2px",
+                            lineHeight: "1.1",
                           }}
                         >
                           {topCategory ? topCategory.name : "-"}
                         </div>
                         <div
                           style={{
-                            fontSize: "9.5px",
+                            fontSize: "9px",
                             color: "#64748B",
-                            marginTop: "1px",
+                            lineHeight: "1",
                           }}
                         >
                           Puncak: {formatRupiah(maxTransaction)}
@@ -445,15 +467,15 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                       </div>
                     </div>
 
-                    {/* Segmented Progress Bar Distribusi Kategori */}
+                    {/* Segmented Progress Bar */}
                     {categories.length > 0 && (
                       <div
                         style={{
                           backgroundColor: "#F8FAFC",
                           border: "1.5px solid #CBD5E1",
                           borderRadius: "10px",
-                          padding: "10px 14px",
-                          marginBottom: "14px",
+                          padding: "9px 12px",
+                          marginBottom: "12px",
                         }}
                       >
                         <div
@@ -461,7 +483,7 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
-                            marginBottom: "6px",
+                            marginBottom: "5px",
                           }}
                         >
                           <span
@@ -475,12 +497,12 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                           >
                             Proporsi Pengeluaran Kategori
                           </span>
-                          <span style={{ fontSize: "9.5px", color: "#64748B" }}>
+                          <span style={{ fontSize: "9px", color: "#64748B" }}>
                             {categories.length} Kategori
                           </span>
                         </div>
 
-                        {/* Bar Horizontal Berwarna */}
+                        {/* Bar Horizontal */}
                         <div
                           style={{
                             height: "8px",
@@ -488,7 +510,7 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                             overflow: "hidden",
                             display: "flex",
                             backgroundColor: "#E2E8F0",
-                            marginBottom: "8px",
+                            marginBottom: "7px",
                           }}
                         >
                           {categories.map((cat) => {
@@ -509,7 +531,7 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                           })}
                         </div>
 
-                        {/* Legend Badge Rincian */}
+                        {/* Legend Badge */}
                         <div
                           style={{
                             display: "flex",
@@ -530,10 +552,11 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                               <div
                                 key={cat.name}
                                 style={{
-                                  display: "flex",
+                                  display: "inline-flex",
                                   alignItems: "center",
                                   gap: "5px",
                                   fontSize: "9.5px",
+                                  lineHeight: "1",
                                 }}
                               >
                                 <span
@@ -542,6 +565,7 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                                     height: "7px",
                                     borderRadius: "50%",
                                     backgroundColor: cat.color,
+                                    flexShrink: 0,
                                   }}
                                 />
                                 <span
@@ -570,7 +594,7 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                 )}
 
                 {/* ===================================================
-                    TABEL TRANSAKSI (HIGH CONTRAST & TEGAS)
+                    TABEL TRANSAKSI (VERTICALLY CENTERED & CRISP)
                     =================================================== */}
                 <div>
                   <div
@@ -583,7 +607,7 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                   >
                     <span
                       style={{
-                        fontSize: "10.5px",
+                        fontSize: "10px",
                         fontWeight: 800,
                         textTransform: "uppercase",
                         letterSpacing: "0.8px",
@@ -616,53 +640,63 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                       >
                         <th
                           style={{
-                            padding: "7px 6px",
+                            padding: "8px 6px",
                             textAlign: "center",
                             width: "36px",
                             fontWeight: 700,
                             borderRight: "1px solid #334155",
+                            verticalAlign: "middle",
+                            lineHeight: "1.2",
                           }}
                         >
                           No
                         </th>
                         <th
                           style={{
-                            padding: "7px 8px",
+                            padding: "8px 8px",
                             textAlign: "left",
-                            width: "95px",
+                            width: "110px",
                             fontWeight: 700,
                             borderRight: "1px solid #334155",
+                            verticalAlign: "middle",
+                            lineHeight: "1.2",
                           }}
                         >
                           Waktu
                         </th>
                         <th
                           style={{
-                            padding: "7px 8px",
-                            textAlign: "left",
+                            padding: "8px 8px",
+                            textAlign: "center",
                             width: "85px",
                             fontWeight: 700,
                             borderRight: "1px solid #334155",
+                            verticalAlign: "middle",
+                            lineHeight: "1.2",
                           }}
                         >
                           Kategori
                         </th>
                         <th
                           style={{
-                            padding: "7px 10px",
+                            padding: "8px 10px",
                             textAlign: "left",
                             fontWeight: 700,
                             borderRight: "1px solid #334155",
+                            verticalAlign: "middle",
+                            lineHeight: "1.2",
                           }}
                         >
                           Nama Barang / Catatan
                         </th>
                         <th
                           style={{
-                            padding: "7px 10px",
+                            padding: "8px 10px",
                             textAlign: "right",
                             width: "105px",
                             fontWeight: 700,
+                            verticalAlign: "middle",
+                            lineHeight: "1.2",
                           }}
                         >
                           Nominal
@@ -679,6 +713,7 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                               padding: "20px",
                               color: "#64748B",
                               fontStyle: "italic",
+                              verticalAlign: "middle",
                             }}
                           >
                             Tidak ada transaksi untuk periode ini.
@@ -697,27 +732,32 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                                 backgroundColor:
                                   idx % 2 === 1 ? "#F8FAFC" : "#FFFFFF",
                                 borderBottom: "1px solid #CBD5E1",
+                                height: "30px",
                               }}
                             >
                               <td
                                 style={{
-                                  padding: "6px 6px",
+                                  padding: "5px 6px",
                                   textAlign: "center",
                                   color: "#64748B",
                                   borderRight: "1px solid #E2E8F0",
+                                  verticalAlign: "middle",
+                                  lineHeight: "1.2",
                                 }}
                               >
                                 {rowNum}
                               </td>
                               <td
                                 style={{
-                                  padding: "6px 8px",
+                                  padding: "5px 8px",
                                   color: "#334155",
                                   whiteSpace: "nowrap",
                                   borderRight: "1px solid #E2E8F0",
+                                  verticalAlign: "middle",
+                                  lineHeight: "1.2",
                                 }}
                               >
-                                <span style={{ fontWeight: 600 }}>
+                                <span style={{ fontWeight: 600, color: "#1E293B" }}>
                                   {formatShortDate(tx.created_at)}
                                 </span>{" "}
                                 <span
@@ -732,20 +772,29 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                               </td>
                               <td
                                 style={{
-                                  padding: "6px 8px",
+                                  padding: "5px 8px",
+                                  textAlign: "center",
                                   borderRight: "1px solid #E2E8F0",
+                                  verticalAlign: "middle",
                                 }}
                               >
                                 <span
                                   style={{
-                                    display: "inline-block",
-                                    padding: "2px 7px",
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    height: "19px",
+                                    padding: "0 8px",
                                     borderRadius: "4px",
                                     fontSize: "9px",
                                     fontWeight: 700,
+                                    lineHeight: "1",
                                     color: catColor,
-                                    backgroundColor: `${catColor}15`,
-                                    border: `1px solid ${catColor}40`,
+                                    backgroundColor: `${catColor}18`,
+                                    border: `1px solid ${catColor}45`,
+                                    verticalAlign: "middle",
+                                    boxSizing: "border-box",
+                                    whiteSpace: "nowrap",
                                   }}
                                 >
                                   {category}
@@ -753,9 +802,11 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                               </td>
                               <td
                                 style={{
-                                  padding: "6px 10px",
+                                  padding: "5px 10px",
                                   color: "#0F172A",
                                   borderRight: "1px solid #E2E8F0",
+                                  verticalAlign: "middle",
+                                  lineHeight: "1.3",
                                 }}
                               >
                                 <span style={{ fontWeight: 700 }}>
@@ -776,11 +827,13 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                               </td>
                               <td
                                 style={{
-                                  padding: "6px 10px",
+                                  padding: "5px 10px",
                                   textAlign: "right",
                                   fontWeight: 800,
                                   color: "#0F172A",
                                   fontVariantNumeric: "tabular-nums",
+                                  verticalAlign: "middle",
+                                  lineHeight: "1.2",
                                 }}
                               >
                                 {formatRupiah(tx.amount)}
@@ -824,7 +877,7 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                         display: "flex",
                         justifyContent: "space-between",
                         alignItems: "center",
-                        marginBottom: "16px",
+                        marginBottom: "14px",
                       }}
                     >
                       <div>
@@ -834,15 +887,17 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                             fontWeight: 800,
                             textTransform: "uppercase",
                             letterSpacing: "0.8px",
+                            lineHeight: "1.2",
                           }}
                         >
                           Total Keseluruhan Pengeluaran
                         </div>
                         <div
                           style={{
-                            fontSize: "9.5px",
+                            fontSize: "9px",
                             color: "#94A3B8",
                             marginTop: "2px",
+                            lineHeight: "1.2",
                           }}
                         >
                           Akumulasi {transactions.length} transaksi pada bulan {monthName}
@@ -854,6 +909,7 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                           fontWeight: 900,
                           color: "#34D399",
                           fontVariantNumeric: "tabular-nums",
+                          lineHeight: "1",
                         }}
                       >
                         {formatRupiah(totalAmount)}
@@ -884,6 +940,7 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                             fontWeight: 700,
                             color: "#64748B",
                             textTransform: "uppercase",
+                            lineHeight: "1",
                           }}
                         >
                           Mengetahui / Menyetujui
@@ -902,11 +959,18 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                             fontWeight: 800,
                             color: "#0F172A",
                             marginTop: "5px",
+                            lineHeight: "1.2",
                           }}
                         >
                           Orang Tua / Wali
                         </div>
-                        <div style={{ fontSize: "9px", color: "#64748B" }}>
+                        <div
+                          style={{
+                            fontSize: "9px",
+                            color: "#64748B",
+                            lineHeight: "1",
+                          }}
+                        >
                           Pemantau Realtime DUITKU
                         </div>
                       </div>
@@ -926,6 +990,7 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                             fontWeight: 700,
                             color: "#64748B",
                             textTransform: "uppercase",
+                            lineHeight: "1",
                           }}
                         >
                           Pembuat Laporan
@@ -944,11 +1009,18 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                             fontWeight: 800,
                             color: "#0F172A",
                             marginTop: "5px",
+                            lineHeight: "1.2",
                           }}
                         >
                           {ownerName}
                         </div>
-                        <div style={{ fontSize: "9px", color: "#64748B" }}>
+                        <div
+                          style={{
+                            fontSize: "9px",
+                            color: "#64748B",
+                            lineHeight: "1",
+                          }}
+                        >
                           Pemilik Jurnal DUITKU
                         </div>
                       </div>
