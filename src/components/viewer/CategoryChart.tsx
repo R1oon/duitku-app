@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useSyncExternalStore } from "react";
+import React, { useState, useSyncExternalStore } from "react";
 import {
   PieChart,
   Pie,
   Cell,
   ResponsiveContainer,
-  Tooltip,
 } from "recharts";
 import { CategorySummary } from "@/lib/categories";
 import { formatRupiah } from "@/lib/format";
@@ -19,44 +18,14 @@ interface CategoryChartProps {
 
 const emptySubscribe = () => () => {};
 
-interface CustomTooltipProps {
-  active?: boolean;
-  payload?: ReadonlyArray<{ payload: CategorySummary }>;
-  totalAmount: number;
-}
-
-function CustomTooltip({ active, payload, totalAmount }: CustomTooltipProps) {
-  if (active && payload && payload.length) {
-    const item = payload[0].payload;
-    const percentage = totalAmount > 0 ? ((item.value / totalAmount) * 100).toFixed(1) : "0";
-
-    return (
-      <div className="p-3 rounded-xl bg-[#0D0D0D] border border-[#262626] shadow-xl text-xs font-sans">
-        <div className="flex items-center gap-2 mb-1">
-          <span
-            className="w-2.5 h-2.5 rounded-full"
-            style={{ backgroundColor: item.color }}
-          />
-          <span className="font-bold text-[#F5F5F5]">{item.name}</span>
-        </div>
-        <div className="font-mono-num font-semibold text-[#14B8A6]">
-          {formatRupiah(item.value)}
-        </div>
-        <div className="text-[10px] text-[#9CA3AF] mt-0.5 font-mono-num">
-          {percentage}% ({item.count} transaksi)
-        </div>
-      </div>
-    );
-  }
-  return null;
-}
-
 export function CategoryChart({ categories, totalAmount }: CategoryChartProps) {
   const isMounted = useSyncExternalStore(
     emptySubscribe,
     () => true,
     () => false
   );
+
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   if (categories.length === 0 || totalAmount === 0) {
     return (
@@ -72,17 +41,27 @@ export function CategoryChart({ categories, totalAmount }: CategoryChartProps) {
     );
   }
 
+  const activeCategory =
+    activeIndex !== null && categories[activeIndex] ? categories[activeIndex] : null;
+
   return (
     <div className="mt-5 p-6 rounded-[20px] bg-[#161616] border border-[#262626]">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-xs font-semibold uppercase tracking-widest text-[#9CA3AF]">
-          Distribusi Pengeluaran
-        </h3>
-        <span className="text-[11px] text-[#9CA3AF]">{categories.length} Kategori</span>
+        <div>
+          <h3 className="text-xs font-semibold uppercase tracking-widest text-[#A1A1AA]">
+            Distribusi Pengeluaran
+          </h3>
+          <p className="text-[10px] text-[#A1A1AA]/60 mt-0.5">
+            Sentuh diagram atau kategori di bawah untuk melihat rincian
+          </p>
+        </div>
+        <span className="text-[11px] font-mono-num text-[#14B8A6] px-2.5 py-0.5 rounded-full bg-[#14B8A6]/10 border border-[#14B8A6]/20">
+          {categories.length} Kategori
+        </span>
       </div>
 
       {/* Donut Chart Container */}
-      <div className="h-56 w-full relative flex items-center justify-center">
+      <div className="h-60 w-full relative flex items-center justify-center">
         {isMounted ? (
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -92,60 +71,114 @@ export function CategoryChart({ categories, totalAmount }: CategoryChartProps) {
                 nameKey="name"
                 cx="50%"
                 cy="50%"
-                innerRadius={55}
-                outerRadius={80}
+                innerRadius={62}
+                outerRadius={85}
                 paddingAngle={4}
                 stroke="#161616"
-                strokeWidth={2}
+                strokeWidth={3}
+                onMouseEnter={(_, index) => setActiveIndex(index)}
+                onMouseLeave={() => setActiveIndex(null)}
+                onClick={(_, index) => {
+                  setActiveIndex((prev) => (prev === index ? null : index));
+                }}
               >
-                {categories.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
+                {categories.map((entry, index) => {
+                  const isCurrentActive = activeIndex === index;
+                  return (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.color}
+                      className="cursor-pointer outline-none transition-all duration-200"
+                      style={{
+                        opacity: activeIndex !== null && !isCurrentActive ? 0.35 : 1,
+                      }}
+                    />
+                  );
+                })}
               </Pie>
-              <Tooltip
-                content={({ active, payload }) => (
-                  <CustomTooltip
-                    active={active}
-                    payload={payload as unknown as ReadonlyArray<{ payload: CategorySummary }>}
-                    totalAmount={totalAmount}
-                  />
-                )}
-              />
             </PieChart>
           </ResponsiveContainer>
         ) : (
           <div className="w-full h-full animate-pulse bg-[#0D0D0D]/50 rounded-xl" />
         )}
 
-        {/* Center Label inside Donut */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <span className="text-[10px] uppercase tracking-wider text-[#9CA3AF]">Total</span>
-          <span className="text-xs font-bold font-mono-num text-[#14B8A6]">
-            {formatRupiah(totalAmount)}
-          </span>
+        {/* Center Display Hub (Bebas Bentrok & Anti Tabrakan) */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none px-4 text-center select-none transition-all duration-200">
+          {activeCategory ? (
+            <div className="animate-in fade-in zoom-in-95 duration-150 flex flex-col items-center">
+              <span
+                className="text-[11px] font-bold tracking-wider uppercase flex items-center gap-1.5"
+                style={{ color: activeCategory.color }}
+              >
+                <span
+                  className="w-2 h-2 rounded-full inline-block"
+                  style={{ backgroundColor: activeCategory.color }}
+                />
+                {activeCategory.name}
+              </span>
+              <span className="text-base font-extrabold font-mono-num text-[#F5F5F5] mt-1 tracking-tight">
+                {formatRupiah(activeCategory.value)}
+              </span>
+              <span className="text-[10px] text-[#A1A1AA] font-mono-num mt-0.5">
+                {((activeCategory.value / totalAmount) * 100).toFixed(1)}% • {activeCategory.count} trx
+              </span>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center">
+              <span className="text-[10px] uppercase tracking-wider text-[#A1A1AA] font-semibold">
+                Total Bulan Ini
+              </span>
+              <span className="text-base font-black font-mono-num text-[#14B8A6] mt-0.5 tracking-tight">
+                {formatRupiah(totalAmount)}
+              </span>
+              <span className="text-[10px] text-[#A1A1AA]/60 font-mono-num mt-0.5">
+                Sentuh untuk detail
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Category Breakdown Legend */}
-      <div className="mt-4 pt-4 border-t border-[#262626] space-y-2.5">
-        {categories.map((cat) => {
+      {/* Category Breakdown Legend (Interaktif: Tap/Hover untuk filter visual) */}
+      <div className="mt-3 pt-4 border-t border-[#262626] space-y-1.5">
+        {categories.map((cat, idx) => {
           const percent = ((cat.value / totalAmount) * 100).toFixed(0);
+          const isSelected = activeIndex === idx;
 
           return (
-            <div key={cat.name} className="flex items-center justify-between text-xs">
+            <div
+              key={cat.name}
+              onMouseEnter={() => setActiveIndex(idx)}
+              onMouseLeave={() => setActiveIndex(null)}
+              onClick={() => setActiveIndex((prev) => (prev === idx ? null : idx))}
+              className={`flex items-center justify-between p-2 rounded-xl text-xs transition-all cursor-pointer ${
+                isSelected
+                  ? "bg-[#262626] scale-[1.01]"
+                  : "hover:bg-[#1f1f1f]/60"
+              }`}
+            >
               <div className="flex items-center gap-2.5">
                 <span
-                  className="w-2.5 h-2.5 rounded-full shrink-0"
-                  style={{ backgroundColor: cat.color }}
+                  className="w-2.5 h-2.5 rounded-full shrink-0 transition-transform"
+                  style={{
+                    backgroundColor: cat.color,
+                    transform: isSelected ? "scale(1.3)" : "scale(1)",
+                  }}
                 />
-                <span className="text-[#F5F5F5] font-medium">{cat.name}</span>
-                <span className="text-[10px] text-[#9CA3AF] font-mono-num">
+                <span
+                  className={`font-medium transition-colors ${
+                    isSelected ? "text-[#F5F5F5] font-semibold" : "text-[#D4D4D8]"
+                  }`}
+                >
+                  {cat.name}
+                </span>
+                <span className="text-[10px] text-[#A1A1AA] font-mono-num">
                   ({cat.count})
                 </span>
               </div>
 
               <div className="flex items-center gap-3">
-                <span className="text-[11px] text-[#9CA3AF] font-mono-num">
+                <span className="text-[11px] text-[#A1A1AA] font-mono-num">
                   {percent}%
                 </span>
                 <span className="font-bold text-[#F5F5F5] font-mono-num">
