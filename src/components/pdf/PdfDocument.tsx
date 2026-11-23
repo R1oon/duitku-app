@@ -74,7 +74,7 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
 
     const totalPages = pages.length;
     const fontFamily =
-      "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+      "Arial, 'Helvetica Neue', Helvetica, -apple-system, BlinkMacSystemFont, sans-serif";
 
     return (
       <div
@@ -135,51 +135,81 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                     }}
                   >
                     <div>
-                      <div
+                      {/* Logo DUITKU & System Subtitle via Table Layout (Anti Baseline-Shift) */}
+                      <table
                         style={{
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: "8px",
-                          marginBottom: "4px",
+                          borderCollapse: "collapse",
+                          borderSpacing: 0,
+                          marginBottom: "6px",
                         }}
                       >
-                        <div
-                          style={{
-                            backgroundColor: "#0F172A",
-                            color: "#FFFFFF",
-                            padding: "3px 8px",
-                            borderRadius: "4px",
-                            fontSize: "11px",
-                            fontWeight: 800,
-                            letterSpacing: "1px",
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "5px",
-                            lineHeight: "1",
-                          }}
-                        >
-                          <span
-                            style={{
-                              width: "6px",
-                              height: "6px",
-                              borderRadius: "50%",
-                              backgroundColor: "#14B8A6",
-                            }}
-                          />
-                          DUITKU
-                        </div>
-                        <span
-                          style={{
-                            fontSize: "9.5px",
-                            fontWeight: 700,
-                            letterSpacing: "1px",
-                            color: "#64748B",
-                            textTransform: "uppercase",
-                          }}
-                        >
-                          FINANCIAL REPORTING SYSTEM
-                        </span>
-                      </div>
+                        <tbody>
+                          <tr>
+                            <td style={{ verticalAlign: "middle", padding: 0 }}>
+                              <div
+                                style={{
+                                  backgroundColor: "#0F172A",
+                                  color: "#FFFFFF",
+                                  padding: "4px 8px",
+                                  borderRadius: "4px",
+                                  whiteSpace: "nowrap",
+                                  lineHeight: "normal",
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    width: "6px",
+                                    height: "6px",
+                                    borderRadius: "50%",
+                                    backgroundColor: "#14B8A6",
+                                    verticalAlign: "middle",
+                                    marginRight: "6px",
+                                    position: "relative",
+                                    top: "-1px",
+                                  }}
+                                />
+                                <span
+                                  style={{
+                                    display: "inline-block",
+                                    verticalAlign: "middle",
+                                    fontSize: "11px",
+                                    fontWeight: 800,
+                                    letterSpacing: "1px",
+                                    lineHeight: "13px",
+                                    color: "#FFFFFF",
+                                  }}
+                                >
+                                  DUITKU
+                                </span>
+                              </div>
+                            </td>
+                            <td
+                              style={{
+                                verticalAlign: "middle",
+                                paddingLeft: "8px",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  fontSize: "9.5px",
+                                  fontWeight: 700,
+                                  letterSpacing: "1px",
+                                  color: "#64748B",
+                                  textTransform: "uppercase",
+                                  display: "inline-block",
+                                  verticalAlign: "middle",
+                                  lineHeight: "13px",
+                                }}
+                              >
+                                FINANCIAL REPORTING SYSTEM
+                              </span>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+
                       <h1
                         style={{
                           fontSize: "20px",
@@ -223,7 +253,7 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                           color: "#64748B",
                           textTransform: "uppercase",
                           letterSpacing: "0.5px",
-                          lineHeight: "1.2",
+                          lineHeight: "13px",
                         }}
                       >
                         NO. DOKUMEN:{" "}
@@ -236,7 +266,7 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                           fontSize: "10px",
                           color: "#334155",
                           marginTop: "3px",
-                          lineHeight: "1.2",
+                          lineHeight: "14px",
                         }}
                       >
                         <strong>Periode:</strong> {monthName} • <strong>Pemilik:</strong> {ownerName}
@@ -247,14 +277,10 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                           color: "#059669",
                           fontWeight: 800,
                           marginTop: "3px",
-                          lineHeight: "1.2",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "flex-end",
-                          gap: "4px",
+                          lineHeight: "14px",
                         }}
                       >
-                        <span>✓</span> RESMI & TERVERIFIKASI
+                        ✓ RESMI &amp; TERVERIFIKASI
                       </div>
                     </div>
                   </div>
@@ -552,34 +578,42 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                               <div
                                 key={cat.name}
                                 style={{
-                                  display: "inline-flex",
-                                  alignItems: "center",
-                                  gap: "5px",
+                                  display: "inline-block",
                                   fontSize: "9.5px",
-                                  lineHeight: "1",
+                                  lineHeight: "14px",
+                                  verticalAlign: "middle",
+                                  whiteSpace: "nowrap",
                                 }}
                               >
                                 <span
                                   style={{
+                                    display: "inline-block",
                                     width: "7px",
                                     height: "7px",
                                     borderRadius: "50%",
                                     backgroundColor: cat.color,
-                                    flexShrink: 0,
+                                    verticalAlign: "middle",
+                                    marginRight: "5px",
+                                    position: "relative",
+                                    top: "-1px",
                                   }}
                                 />
                                 <span
                                   style={{
                                     fontWeight: 700,
                                     color: "#0F172A",
+                                    display: "inline-block",
+                                    verticalAlign: "middle",
                                   }}
                                 >
                                   {cat.name}
-                                </span>
+                                </span>{" "}
                                 <span
                                   style={{
                                     color: "#64748B",
                                     fontVariantNumeric: "tabular-nums",
+                                    display: "inline-block",
+                                    verticalAlign: "middle",
                                   }}
                                 >
                                   {percent}% ({formatRupiah(cat.value)})
@@ -636,67 +670,68 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                         style={{
                           backgroundColor: "#0F172A",
                           color: "#FFFFFF",
+                          height: "32px",
                         }}
                       >
                         <th
                           style={{
-                            padding: "8px 6px",
+                            padding: "7px 6px",
                             textAlign: "center",
                             width: "36px",
                             fontWeight: 700,
                             borderRight: "1px solid #334155",
                             verticalAlign: "middle",
-                            lineHeight: "1.2",
+                            lineHeight: "14px",
                           }}
                         >
                           No
                         </th>
                         <th
                           style={{
-                            padding: "8px 8px",
+                            padding: "7px 8px",
                             textAlign: "left",
                             width: "110px",
                             fontWeight: 700,
                             borderRight: "1px solid #334155",
                             verticalAlign: "middle",
-                            lineHeight: "1.2",
+                            lineHeight: "14px",
                           }}
                         >
                           Waktu
                         </th>
                         <th
                           style={{
-                            padding: "8px 8px",
+                            padding: "7px 8px",
                             textAlign: "center",
                             width: "85px",
                             fontWeight: 700,
                             borderRight: "1px solid #334155",
                             verticalAlign: "middle",
-                            lineHeight: "1.2",
+                            lineHeight: "14px",
                           }}
                         >
                           Kategori
                         </th>
                         <th
                           style={{
-                            padding: "8px 10px",
+                            padding: "7px 10px",
                             textAlign: "left",
                             fontWeight: 700,
                             borderRight: "1px solid #334155",
                             verticalAlign: "middle",
-                            lineHeight: "1.2",
+                            lineHeight: "14px",
                           }}
                         >
                           Nama Barang / Catatan
                         </th>
                         <th
                           style={{
-                            padding: "8px 10px",
+                            padding: "7px 10px",
                             textAlign: "right",
                             width: "105px",
                             fontWeight: 700,
                             verticalAlign: "middle",
-                            lineHeight: "1.2",
+                            lineHeight: "14px",
                           }}
                         >
                           Nominal
@@ -742,7 +777,7 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                                   color: "#64748B",
                                   borderRight: "1px solid #E2E8F0",
                                   verticalAlign: "middle",
-                                  lineHeight: "1.2",
+                                  lineHeight: "14px",
                                 }}
                               >
                                 {rowNum}
@@ -754,7 +789,7 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                                   whiteSpace: "nowrap",
                                   borderRight: "1px solid #E2E8F0",
                                   verticalAlign: "middle",
-                                  lineHeight: "1.2",
+                                  lineHeight: "14px",
                                 }}
                               >
                                 <span style={{ fontWeight: 600, color: "#1E293B" }}>
@@ -772,7 +807,7 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                               </td>
                               <td
                                 style={{
-                                  padding: "5px 8px",
+                                  padding: "4px 8px",
                                   textAlign: "center",
                                   borderRight: "1px solid #E2E8F0",
                                   verticalAlign: "middle",
@@ -780,21 +815,18 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                               >
                                 <span
                                   style={{
-                                    display: "inline-flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    height: "19px",
-                                    padding: "0 8px",
+                                    display: "inline-block",
+                                    padding: "3px 8px",
                                     borderRadius: "4px",
                                     fontSize: "9px",
                                     fontWeight: 700,
-                                    lineHeight: "1",
+                                    lineHeight: "12px",
                                     color: catColor,
                                     backgroundColor: `${catColor}18`,
                                     border: `1px solid ${catColor}45`,
                                     verticalAlign: "middle",
-                                    boxSizing: "border-box",
                                     whiteSpace: "nowrap",
+                                    textAlign: "center",
                                   }}
                                 >
                                   {category}
@@ -806,7 +838,7 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                                   color: "#0F172A",
                                   borderRight: "1px solid #E2E8F0",
                                   verticalAlign: "middle",
-                                  lineHeight: "1.3",
+                                  lineHeight: "14px",
                                 }}
                               >
                                 <span style={{ fontWeight: 700 }}>
@@ -833,7 +865,7 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                                   color: "#0F172A",
                                   fontVariantNumeric: "tabular-nums",
                                   verticalAlign: "middle",
-                                  lineHeight: "1.2",
+                                  lineHeight: "14px",
                                 }}
                               >
                                 {formatRupiah(tx.amount)}
@@ -867,54 +899,76 @@ export const PdfDocument = React.forwardRef<HTMLDivElement, PdfDocumentProps>(
                     =================================================== */}
                 {isLastPage && (
                   <div style={{ marginTop: "14px" }}>
-                    {/* Grand Total Box Eksekutif */}
-                    <div
+                    {/* Grand Total Box Eksekutif via Table (Anti Baseline-Shift) */}
+                    <table
                       style={{
+                        width: "100%",
                         backgroundColor: "#0F172A",
                         color: "#FFFFFF",
                         borderRadius: "8px",
-                        padding: "10px 16px",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
                         marginBottom: "14px",
+                        borderCollapse: "separate",
+                        borderSpacing: 0,
+                        tableLayout: "fixed",
                       }}
                     >
-                      <div>
-                        <div
-                          style={{
-                            fontSize: "11px",
-                            fontWeight: 800,
-                            textTransform: "uppercase",
-                            letterSpacing: "0.8px",
-                            lineHeight: "1.2",
-                          }}
-                        >
-                          Total Keseluruhan Pengeluaran
-                        </div>
-                        <div
-                          style={{
-                            fontSize: "9px",
-                            color: "#94A3B8",
-                            marginTop: "2px",
-                            lineHeight: "1.2",
-                          }}
-                        >
-                          Akumulasi {transactions.length} transaksi pada bulan {monthName}
-                        </div>
-                      </div>
-                      <div
-                        style={{
-                          fontSize: "18px",
-                          fontWeight: 900,
-                          color: "#34D399",
-                          fontVariantNumeric: "tabular-nums",
-                          lineHeight: "1",
-                        }}
-                      >
-                        {formatRupiah(totalAmount)}
-                      </div>
-                    </div>
+                      <tbody>
+                        <tr>
+                          <td
+                            style={{
+                              padding: "12px 18px",
+                              verticalAlign: "middle",
+                              textAlign: "left",
+                            }}
+                          >
+                            <div
+                              style={{
+                                fontSize: "11px",
+                                fontWeight: 800,
+                                textTransform: "uppercase",
+                                letterSpacing: "0.8px",
+                                lineHeight: "15px",
+                                color: "#FFFFFF",
+                              }}
+                            >
+                              Total Keseluruhan Pengeluaran
+                            </div>
+                            <div
+                              style={{
+                                fontSize: "9px",
+                                color: "#94A3B8",
+                                marginTop: "3px",
+                                lineHeight: "13px",
+                              }}
+                            >
+                              Akumulasi {transactions.length} transaksi pada bulan {monthName}
+                            </div>
+                          </td>
+                          <td
+                            style={{
+                              padding: "12px 18px",
+                              verticalAlign: "middle",
+                              textAlign: "right",
+                              width: "220px",
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontSize: "20px",
+                                fontWeight: 900,
+                                color: "#34D399",
+                                fontVariantNumeric: "tabular-nums",
+                                lineHeight: "22px",
+                                display: "inline-block",
+                                verticalAlign: "middle",
+                              }}
+                            >
+                              {formatRupiah(totalAmount)}
+                            </span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
 
                     {/* Dua Kolom Tanda Tangan Formal */}
                     <div

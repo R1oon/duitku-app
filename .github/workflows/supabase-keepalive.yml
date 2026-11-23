@@ -1,0 +1,45 @@
+name: Supabase Keep-Alive
+
+on:
+  schedule:
+    # Berjalan setiap hari Senin dan Kamis pukul 06.00 UTC (13.00 WIB)
+    # Menjamin project Supabase Free Tier selalu aktif dan terhindar dari auto-pause 7 hari
+    - cron: '0 6 * * 1,4'
+  workflow_dispatch: # Memungkinkan eksekusi manual via tab Actions di GitHub
+
+jobs:
+  ping-supabase:
+    name: Ping Supabase Database
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send keep-alive ping to Supabase REST API
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://jsjssjfcqngjgvtypesc.supabase.co' }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          echo "=========================================="
+          echo "Memulai keep-alive ping Supabase..."
+          echo "Target URL: $SUPABASE_URL"
+          echo "=========================================="
+
+          if [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "::warning ::Secret SUPABASE_ANON_KEY belum dikonfigurasi di GitHub Secrets."
+            echo "Melakukan ping anonim ke health endpoint Supabase..."
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$SUPABASE_URL/rest/v1/")
+          else
+            echo "Mengirim request query ringan ke tabel transactions..."
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+              -X GET "$SUPABASE_URL/rest/v1/transactions?select=id&limit=1" \
+              -H "apikey: $SUPABASE_ANON_KEY" \
+              -H "Authorization: Bearer $SUPABASE_ANON_KEY")
+          fi
+
+          echo "Response HTTP Status Code: $HTTP_CODE"
+
+          # Status 200 (OK), 206 (Partial Content), atau 401/403 (tetap membuktikan server bangun & menerima request)
+          if [ "$HTTP_CODE" -ge 200 ] && [ "$HTTP_CODE" -lt 500 ]; then
+            echo "✓ Keep-alive berhasil! Supabase project aktif."
+          else
+            echo "::error ::Gagal menghubungi project Supabase (Status: $HTTP_CODE)"
+            exit 1
+          fi
