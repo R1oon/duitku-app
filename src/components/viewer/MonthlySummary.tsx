@@ -52,18 +52,18 @@ export function MonthlySummary({
       </div>
 
       {/* Metrics */}
-      <div className="mt-4 flex items-end justify-between">
-        <div>
-          <span className="text-xs font-semibold tracking-wider uppercase text-[#9CA3AF]">
+      <div className="mt-4 flex items-end justify-between gap-3">
+        <div className="flex-1 min-w-0">
+          <span className="text-xs font-semibold tracking-wider uppercase text-[#A1A1AA]">
             Total Pengeluaran
           </span>
-          <div className="mt-1 text-2xl sm:text-3xl font-extrabold text-[#14B8A6] font-mono-num tracking-tight">
+          <div className="mt-1 text-2xl sm:text-3xl font-extrabold text-[#14B8A6] font-mono-num tracking-tight truncate">
             {formatRupiah(totalAmount)}
           </div>
         </div>
 
-        <div className="text-right">
-          <span className="text-xs font-semibold tracking-wider uppercase text-[#9CA3AF]">
+        <div className="text-right shrink-0 whitespace-nowrap">
+          <span className="text-xs font-semibold tracking-wider uppercase text-[#A1A1AA]">
             Frekuensi
           </span>
           <div className="mt-1 text-base font-bold text-[#F5F5F5] font-mono-num">

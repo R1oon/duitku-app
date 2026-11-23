@@ -14,11 +14,11 @@ export function MonthlyTable({ transactions }: MonthlyTableProps) {
 
   return (
     <div className="mt-5 rounded-[20px] bg-[#161616] border border-[#262626] overflow-hidden">
-      <div className="px-5 py-4 border-b border-[#262626] flex items-center justify-between">
-        <h3 className="text-xs font-semibold uppercase tracking-widest text-[#9CA3AF]">
+      <div className="px-5 py-4 border-b border-[#262626] flex items-center justify-between gap-3">
+        <h3 className="text-xs font-semibold uppercase tracking-widest text-[#A1A1AA]">
           Rincian Transaksi Bulanan
         </h3>
-        <span className="text-xs font-mono-num text-[#9CA3AF]">
+        <span className="text-xs font-mono-num text-[#A1A1AA] shrink-0 whitespace-nowrap">
           {transactions.length} Data
         </span>
       </div>

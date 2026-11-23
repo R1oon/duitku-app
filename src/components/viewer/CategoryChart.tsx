@@ -46,16 +46,16 @@ export function CategoryChart({ categories, totalAmount }: CategoryChartProps) {
 
   return (
     <div className="mt-5 p-6 rounded-[20px] bg-[#161616] border border-[#262626]">
-      <div className="flex items-center justify-between mb-4">
-        <div>
+      <div className="flex items-start justify-between gap-3 mb-4">
+        <div className="flex-1 min-w-0">
           <h3 className="text-xs font-semibold uppercase tracking-widest text-[#A1A1AA]">
             Distribusi Pengeluaran
           </h3>
-          <p className="text-[10px] text-[#A1A1AA]/60 mt-0.5">
-            Sentuh diagram atau kategori di bawah untuk melihat rincian
+          <p className="text-[10px] text-[#A1A1AA]/60 mt-0.5 leading-snug">
+            Sentuh diagram atau kategori untuk melihat rincian
           </p>
         </div>
-        <span className="text-[11px] font-mono-num text-[#14B8A6] px-2.5 py-0.5 rounded-full bg-[#14B8A6]/10 border border-[#14B8A6]/20">
+        <span className="shrink-0 whitespace-nowrap text-[11px] font-mono-num font-semibold text-[#14B8A6] px-2.5 py-1 rounded-full bg-[#14B8A6]/10 border border-[#14B8A6]/20 self-start">
           {categories.length} Kategori
         </span>
       </div>
