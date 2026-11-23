@@ -2,13 +2,14 @@
 
 # 📓 DUITKU — Black Journal Edition
 
-**Jurnal pengeluaran harian keluarga dengan dashboard sinkronisasi Realtime, analitik bulanan, ekspor laporan PDF A4 formal, dan dukungan PWA.**
+**Jurnal pengeluaran harian keluarga dengan dashboard sinkronisasi Realtime, analitik bulanan interaktif, ekspor laporan PDF A4 formal dinamis, dan dukungan PWA.**
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![Supabase](https://img.shields.io/badge/Supabase-Realtime-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
 [![PWA Ready](https://img.shields.io/badge/PWA-Installable-14B8A6?style=for-the-badge)](https://duitku-app-orpin.vercel.app/)
+[![Supabase Keep-Alive](https://img.shields.io/badge/Keep--Alive-GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/R1oon/duitku-app/actions/workflows/supabase-keepalive.yml)
 
 [🌐 **Live Demo**](https://duitku-app-orpin.vercel.app/) • [✍️ **Halaman Editor (`/editor`)**](https://duitku-app-orpin.vercel.app/editor) • [👁️ **Realtime Viewer (`/ari`)**](https://duitku-app-orpin.vercel.app/ari) • [📐 **Project Blueprint**](./docs/blueprint.md)
 
@@ -18,36 +19,45 @@
 
 ## ✨ Tentang DUITKU
 
-**DUITKU** dirancang untuk mengubah pelaporan pengeluaran harian yang manual menjadi sistem **Single-Input Realtime Sharing**. Cukup catat sekali di halaman Editor, dan seluruh dashboard Viewer (orang tua/wali) akan diperbarui secara instan tanpa perlu me-refresh halaman.
+**DUITKU** dirancang untuk mentransformasi pelaporan keuangan harian yang manual menjadi sistem **Single-Input Realtime Sharing**. Pengguna cukup mencatat sekali di halaman Editor, dan seluruh dashboard Viewer (orang tua/wali) akan diperbarui secara instan tanpa perlu memuat ulang halaman.
 
 ### Prinsip Utama
-1. **⚡ Zero Friction** — Tanpa login, tanpa registrasi, tanpa OTP/PIN yang menghambat pencatatan cepat.
-2. **📱 Mobile-First** — Didesain presisi untuk layar ponsel (`390px–430px`) lengkap dengan dukungan *Progressive Web App (PWA)* yang dapat di-install ke layar utama (*Add to Home Screen*).
-3. **🔴 Realtime Transparency** — Menggunakan *Supabase Realtime Postgres Changes* untuk menyinkronkan aksi `INSERT`, `UPDATE`, dan `DELETE` secara langsung.
+1. **⚡ Zero Friction** — Tanpa login, registrasi, maupun OTP/PIN yang menghambat pencatatan kilat.
+2. **📱 Mobile-First Ergonomics** — Didesain presisi untuk layar ponsel (`390px–430px`) dengan *bottom sheet drawer*, *quick nominal chips*, dan dukungan *Progressive Web App (PWA)* yang dapat diinstal ke layar utama (*Add to Home Screen*).
+3. **🔴 Realtime Transparency** — Menggunakan *Supabase Realtime Postgres Changes* untuk menyinkronkan aksi `INSERT`, `UPDATE`, dan `DELETE` secara live dengan proteksi pemulihan koneksi otomatis.
 4. **🖤 Black Journal Design System** — Perpaduan tema gelap *matte black* (`#0D0D0D`) bernuansa jurnal minimalis dengan tipografi **Inter** dan **Roboto Mono** khusus untuk nominal uang serta waktu transaksi.
 
 ---
 
 ## 🚀 Fitur Utama
 
-### 1. ✍️ Editor Jurnal (`/editor`)
-- **Optimistic UI (0ms Latency)**: Saat transaksi disimpan, diubah, atau dihapus, antarmuka langsung diperbarui seketika tanpa menunggu jeda jaringan (*network latency*), lengkap dengan proteksi *auto-rollback* jika koneksi gagal.
-- **Live Rupiah Formatter**: Pratinjau nominal otomatis dalam format Rupiah (`Rp10.000`) saat mengetik angka.
-- **Indikator Status Database**: Penanda koneksi aktif (`● Connected`) ke Supabase.
+### 1. ✍️ Editor Jurnal Cepat (`/editor`)
+- **Optimistic UI (0ms Latency)**: Antarmuka langsung terupdate seketika saat menyimpan, mengedit, atau menghapus transaksi tanpa menunggu jeda jaringan, dilengkapi proteksi *auto-rollback* jika koneksi terputus.
+- **Quick Nominal Chips**: Tombol nominal cepat (`+10rb`, `+20rb`, `+50rb`, `+100rb`, dan `Reset`) untuk mempercepat input transaksi harian hanya dengan sekali sentuh.
+- **Live Category Detection**: Tag kategori otomatis terdeteksi dan muncul sebagai *badge* pratinjau langsung saat mengetik nama barang (misal: "Kopi Susu" ➔ badge Minuman).
+- **Mobile Keyboard Ergonomics**: Mode input angka numerik native (`inputMode="numeric"`) dengan pemisah ribuan otomatis saat mengetik.
+- **Indikator Database & Auto-Reconnect**: Status koneksi aktif (`● Connected`) ke Supabase dengan tombol aksi *retry* instan jika terjadi gangguan jaringan.
 
 ### 2. 👁️ Dashboard Realtime Viewer (`/ari`)
-- **Live Stream Timeline**: Menampilkan transaksi hari ini dari yang terbaru hingga terlama dengan *badge* animasi **"Baru"** saat data masuk secara *live*.
-- **Big Total Display**: Fokus utama pada metrik total pengeluaran hari ini dengan tipografi besar yang mudah dibaca.
-- **Read-Only Protection**: Halaman khusus pemantau tanpa tombol edit/hapus untuk mencegah perubahan data yang tidak disengaja.
+- **Live Stream Timeline**: Menampilkan transaksi hari ini secara kronologis dengan *badge* animasi **"Baru"** saat data masuk secara langsung.
+- **Filter Kategori & Pencarian Instan**: Tab chip filter kategori (*Semua, Makanan, Minuman, Transport, Belanja, Lainnya*) serta kotak pencarian cepat untuk memfilter transaksi tanpa reload.
+- **Big Total Display**: Metrik utama total pengeluaran hari ini disajikan dengan tipografi besar yang kontras dan nyaman dipandang.
+- **Read-Only Protection**: Halaman khusus pemantau tanpa kontrol pengeditan/penghapusan untuk menjaga integritas data.
 
 ### 3. 📊 Rekapitulasi & Analitik Bulanan
-- **Navigasi Antar Bulan**: Pantau riwayat pengeluaran bulan berjalan maupun bulan-bulan sebelumnya.
-- **Auto-Categorization Engine**: Pengelompokan kategori otomatis berbasis kata kunci (*Makanan, Minuman, Transport, Belanja, Lainnya*) tanpa membebani pengguna saat input.
-- **Visualisasi Donut Chart**: Grafik distribusi pengeluaran interaktif menggunakan `Recharts`.
+- **Center Info Hub Donut Chart**: Visualisasi distribusi pengeluaran berbasis `Recharts` dengan titik informasi interaktif di pusat diagram (menampilkan total keseluruhan secara default, serta nominal, persentase kontribusi, dan jumlah transaksi saat kategori disentuh atau diarahkan kursor).
+- **Auto-Categorization Engine**: Pengelompokan cerdas berbasis kata kunci tanpa membebani pengguna saat input.
+- **Navigasi Antar Bulan**: Kemudahan menelusuri riwayat pengeluaran bulan berjalan maupun bulan-bulan terdahulu.
 
-### 4. 📄 Ekspor Laporan PDF Standar Kantor (A4 Portrait)
-- Menghasilkan dokumen laporan keuangan formal berlatar putih bersih (`#FFFFFF`) dan teks hitam (`#000000`) yang siap cetak dan hemat tinta.
-- Dilengkapi kop laporan, kotak ringkasan eksekutif, tabel rincian bernomor dengan penjumlahan total keseluruhan, serta kolom tanda tangan formal (*Mengetahui* & *Pembuat Laporan*).
+### 4. 📄 Ekspor Dokumen Laporan Keuangan Formal (A4 Portrait)
+- **Smart Dynamic Multi-Page Engine**: Algoritma paginasi cerdas yang memecah puluhan baris transaksi ke dalam beberapa lembar A4 secara rapi tanpa terpotong (*no cutoff*).
+- **Proporsi Pengeluaran Kategori**: *Segmented horizontal progress bar* dengan kode warna representatif, persentase, dan nominal masing-masing kategori.
+- **Executive KPI Cards**: 3 kartu ringkasan eksekutif (*Total Pengeluaran Bulanan, Aktivitas Transaksi & Rata-rata Harian, dan Kategori Dominan*).
+- **Tabel Presisi & Anti Baseline-Sinking**: Tata letak tabel dengan *font metrics* simetris (`Arial`), nomor urut berlanjut antar halaman, penanda bersambung, banner total keseluruhan, serta dua kolom tanda tangan formal (*Orang Tua* & *Pembuat Laporan*).
+
+### 5. 🛡️ Supabase Keep-Alive Automation
+- **Scheduled GitHub Actions Cron**: Workflow otomatis (`.github/workflows/supabase-keepalive.yml`) yang berjalan dua kali seminggu (Senin & Kamis pukul 06.00 UTC / 13.00 WIB) untuk melakukan REST query baca ringan.
+- **Pencegah Auto-Pause 7 Hari**: Menjaga project Supabase Free Tier selalu aktif tanpa perlu memasukkan data transaksi palsu dan 100% aman sesuai ketentuan layanan Supabase.
 
 ---
 
@@ -56,47 +66,70 @@
 | Layer | Teknologi | Kegunaan |
 | :--- | :--- | :--- |
 | **Framework** | Next.js 16 (App Router) | Routing modern, Server/Client Components, PWA Manifest |
-| **Language** | TypeScript 5 | Type-safety menyeluruh untuk skema database & komponen |
-| **Styling** | Tailwind CSS v4 | Styling *utility-first* dengan tema kustom *Black Journal* |
-| **Database** | Supabase PostgreSQL | Penyimpanan data transaksi awan |
-| **Realtime** | Supabase Realtime | Sinkronisasi *live* via WebSockets (`postgres_changes`) |
-| **Charts** | Recharts | Visualisasi grafik analitik kategori pengeluaran |
-| **PDF Generator** | jsPDF + html2canvas | Ekspor dokumen laporan keuangan A4 siap cetak |
-| **Icons** | Lucide React | Ikonografi minimalis & konsisten |
+| **Language** | TypeScript 5 | Strict type-safety menyeluruh untuk skema data & komponen |
+| **Styling** | Tailwind CSS v4 | Utility-first styling dengan custom theme *Black Journal* |
+| **Database** | Supabase PostgreSQL | Penyimpanan transaksi awan dengan Row Level Security |
+| **Realtime** | Supabase Realtime | Sinkronisasi data dua arah via WebSocket (`postgres_changes`) |
+| **Data Viz** | Recharts | Donut chart interaktif dengan Center Info Hub |
+| **PDF Engine** | jsPDF + html2canvas | Pembuat dokumen laporan A4 multi-halaman siap cetak |
+| **Automation** | GitHub Actions | Scheduled keep-alive cron untuk project Supabase |
+| **Icons** | Lucide React | Ikonografi modern, ringan, dan konsisten |
 
 ---
 
-## 📂 Struktur Folder
+## 📂 Struktur Direktori Kode
+
+Struktur proyek dirancang modular mengikuti pola *Domain-Driven UI* untuk memisahkan logika editor, viewer, dan pelaporan PDF:
 
 ```text
 duitku-app/
+├── .github/
+│   └── workflows/
+│       └── supabase-keepalive.yml     # Workflow cron keep-alive Supabase Free Tier
 ├── docs/
-│   └── blueprint.md               # Dokumen PRD & Master Project Blueprint
+│   └── blueprint.md                   # Dokumen PRD & Master Project Blueprint
 ├── public/
-│   ├── icons/                     # Ikon aplikasi PWA (192x192, 512x512, Apple Touch Icon, SVG)
-│   └── manifest.json              # File konfigurasi PWA standalone
+│   ├── icons/                         # Aset ikon PWA (192px, 512px, Apple Touch Icon, SVG)
+│   └── manifest.json                  # Manifest konfigurasi PWA standalone
 └── src/
     ├── app/
     │   ├── ari/
-    │   │   └── page.tsx           # Halaman Dashboard Realtime Viewer & Analitik Bulanan
+    │   │   └── page.tsx               # Dashboard Realtime Viewer & Analitik Bulanan
     │   ├── editor/
-    │   │   └── page.tsx           # Halaman Editor Jurnal (Input/Edit/Hapus + Optimistic UI)
-    │   ├── globals.css            # Konfigurasi tema Black Journal & Tailwind CSS v4
-    │   ├── layout.tsx             # Root Layout, konfigurasi Font (Inter & Roboto Mono) & Viewport
-    │   ├── manifest.ts            # Generator Web App Manifest untuk PWA
-    │   └── page.tsx               # Halaman Gerbang Utama (Gateway Editor / Viewer)
+    │   │   └── page.tsx               # Editor Jurnal (Input/Edit/Hapus + Optimistic UI)
+    │   ├── globals.css                # Styling global tema Black Journal & Tailwind CSS v4
+    │   ├── layout.tsx                 # Root layout, konfigurasi font & metadata viewport
+    │   ├── manifest.ts                # Generator Web App Manifest dinamis untuk PWA
+    │   └── page.tsx                   # Halaman gerbang utama (Gateway Editor / Viewer)
     ├── components/
-    │   ├── editor/                # Komponen halaman Editor (Header, SummaryCard, Modal, dll.)
-    │   ├── viewer/                # Komponen halaman Viewer (BigTotal, Timeline, Recharts, Tabel)
-    │   └── pdf/                   # Template cetak laporan formal A4 & Modal progres PDF
-    └── lib/
-        ├── categories.ts          # Klasifikasi kategori otomatis berbasis kata kunci
-        ├── format.ts              # Formatter Rupiah (Rp10.000), Jam (12:41), dan Tanggal Indonesia
-        ├── pdf.ts                 # Engine generator PDF A4 Portrait (jsPDF + html2canvas)
-        ├── realtime.ts            # Helper subscription channel Supabase Realtime
-        ├── supabase.ts            # Inisialisasi client Supabase & tipe skema TypeScript
-        ├── transactions.ts        # CRUD Helper (Select, Insert, Update, Delete)
-        └── utils.ts               # Utility penggabung class Tailwind (clsx + tailwind-merge)
+    │   ├── editor/                    # Komponen antarmuka pencatatan
+    │   │   ├── DeleteConfirmModal.tsx # Dialog konfirmasi penghapusan transaksi
+    │   │   ├── FloatingAddButton.tsx  # Tombol aksi melayang (FAB) tambah transaksi
+    │   │   ├── Header.tsx             # Header editor dengan indikator status koneksi
+    │   │   ├── SummaryCard.tsx        # Kartu ringkasan total & jumlah transaksi hari ini
+    │   │   ├── TransactionCard.tsx    # Kartu transaksi interaktif (edit/hapus)
+    │   │   ├── TransactionList.tsx    # Daftar transaksi hari ini dengan empty state
+    │   │   └── TransactionModal.tsx   # Modal drawer form (chips nominal & auto-kategori)
+    │   ├── viewer/                    # Komponen antarmuka pemantauan realtime
+    │   │   ├── BigTotalDisplay.tsx    # Banner utama total pengeluaran hari ini
+    │   │   ├── CategoryChart.tsx      # Grafik donat Recharts dengan Center Info Hub
+    │   │   ├── MonthlyRecapView.tsx   # Tampilan tab rekapitulasi analitik bulanan
+    │   │   ├── MonthlySummary.tsx     # Ringkasan KPI bulanan & persentase kategori
+    │   │   ├── MonthlyTable.tsx       # Tabel data transaksi bulanan lengkap
+    │   │   ├── RealtimeTimeline.tsx   # Linimasa realtime dengan filter & pencarian
+    │   │   ├── TimelineItem.tsx       # Item baris linimasa dengan status badge
+    │   │   └── ViewerHeader.tsx       # Header viewer dengan pemilih tanggal
+    │   └── pdf/                       # Modul generator laporan PDF formal
+    │       ├── ExportPdfModal.tsx     # Modal status & progress bar download PDF
+    │       └── PdfDocument.tsx        # Template dokumen A4 formal (multi-page dynamic)
+    └── lib/                           # Utility & modul logic bisnis
+        ├── categories.ts              # Engine klasifikasi kategori otomatis & skema warna
+        ├── format.ts                  # Formatter Rupiah, jam, dan tanggal lokal Indonesia
+        ├── pdf.ts                     # Controller pengekspor PDF multi-halaman (jsPDF)
+        ├── realtime.ts                # Subscription helper channel Supabase Realtime
+        ├── supabase.ts                # Inisialisasi client Supabase & definisi skema tipe
+        ├── transactions.ts            # Data access layer CRUD transaksi
+        └── utils.ts                   # Utility penggabung class CSS (clsx + tailwind-merge)
 ```
 
 ---
@@ -113,7 +146,7 @@ npm install
 
 ### 2. Konfigurasi Database Supabase
 
-Buat project baru di [Supabase](https://supabase.com/), lalu jalankan query SQL berikut pada menu **SQL Editor**:
+Buat project di [Supabase](https://supabase.com/), lalu jalankan script berikut di **SQL Editor**:
 
 ```sql
 -- 1. Buat tabel utama transactions
@@ -139,13 +172,13 @@ create policy "public_delete" on transactions for delete using (true);
 
 ### 3. Atur Environment Variables
 
-Salin file `.env.local.example` menjadi `.env.local`, lalu masukkan **Project URL** dan **Anon Key** dari dashboard Supabase Anda:
+Salin `.env.local.example` ke `.env.local`, lalu masukkan kredensial Supabase Anda:
 
 ```bash
 cp .env.local.example .env.local
 ```
 
-Isi file `.env.local`:
+Isi `.env.local`:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://project-ref-anda.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=anon-key-supabase-anda
@@ -157,12 +190,22 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=anon-key-supabase-anda
 npm run dev
 ```
 
-Buka [http://localhost:3000](http://localhost:3000) di browser Anda:
-- Gunakan [http://localhost:3000/editor](http://localhost:3000/editor) untuk mencatat transaksi.
-- Buka tab baru di [http://localhost:3000/ari](http://localhost:3000/ari) untuk melihat pembaruan *realtime* bekerja secara langsung.
+Buka URL berikut di browser Anda:
+- [http://localhost:3000/editor](http://localhost:3000/editor) — Mode pencatatan transaksi.
+- [http://localhost:3000/ari](http://localhost:3000/ari) — Mode pemantauan realtime & laporan bulanan.
+
+---
+
+## 🤖 Konfigurasi Otomasi Supabase Keep-Alive (GitHub Actions)
+
+Agar cron workflow dapat berjalan dengan otentikasi penuh ke Supabase:
+1. Buka repositori Anda di GitHub: **Settings > Secrets and variables > Actions**.
+2. Klik tombol **New repository secret**.
+3. Buat secret bernama **`SUPABASE_ANON_KEY`** dengan nilai *Anon Key* Supabase Anda.
+4. *(Opsional)* Jika URL project berbeda dari default, buat secret **`SUPABASE_URL`**.
 
 ---
 
 <div align="center">
-  <sub>Dibangun dengan ❤️ menggunakan Next.js, Tailwind CSS, dan Supabase.</sub>
+  <sub>Dibangun dengan kesederhanaan, transparansi, dan kecepatan menggunakan Next.js, Tailwind CSS, dan Supabase.</sub>
 </div>
